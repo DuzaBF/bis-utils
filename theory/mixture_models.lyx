@@ -1,0 +1,219 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+Mixture model provide a formula for the electrical properties of the heterogeneo
+us media based on a properties of constituting substances and structure
+ of the media.
+\end_layout
+
+\begin_layout Standard
+When studying biological tissues in particular the adipose tissues the model
+ of suspension of spherical particles in some substance is used as it well
+ represents the structure of adipose tissue - spherical cell suspended in
+ extracellular fluid.
+\end_layout
+
+\begin_layout Standard
+One of such models is a Hanai mixture model.
+\end_layout
+
+\begin_layout Standard
+General Hanai equation for suspension of spherical particles in medium for
+ high concentrations in terms of complex dielectric permittivity:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{\boldsymbol{\mathbf{\varepsilon}}-\boldsymbol{\varepsilon}_{p}}{\boldsymbol{\varepsilon}_{m}-\boldsymbol{\varepsilon}_{p}}\left(\frac{\boldsymbol{\varepsilon}_{m}}{\boldsymbol{\mathbf{\varepsilon}}}\right)^{1/3}=1-\Phi
+\]
+
+\end_inset
+
+where
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\boldsymbol{\mathbf{\varepsilon}}$
+\end_inset
+
+ - complex permittivity of the suspension;
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\boldsymbol{\varepsilon}_{p}$
+\end_inset
+
+ - complex permittivity of the particles;
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\boldsymbol{\varepsilon}_{m}$
+\end_inset
+
+ - complex permittivity of the medium;
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\Phi$
+\end_inset
+
+ - volume fraction of the particles in medium;
+\end_layout
+
+\begin_layout Standard
+Biological tissues can be viewed as conductors with some dielectric properties.
+ The complex conductivity is defined as:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\boldsymbol{\sigma}=\sigma'+j\omega\varepsilon'
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The complex permittivity is defined as:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\boldsymbol{\varepsilon}=\varepsilon'-j\frac{\sigma'}{\omega}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The values for conductivity and permittivity with prime are usually given
+ in tissue properties charts.
+ Note that 
+\begin_inset Formula $\boldsymbol{\varepsilon}=\frac{\boldsymbol{\sigma}}{j\omega}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+In terms of complex conductivity Hanai equation is written as:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{\sigma-\sigma_{p}}{\sigma_{m}-\sigma_{p}}\left(\frac{\sigma_{m}}{\sigma}\right)^{1/3}=1-\Phi
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+References:
+\end_layout
+
+\begin_layout Standard
+[1] S.
+ Grimnes and O.
+ G.
+ Martinsen, Bioimpedance and bioelectricity basics, 3rd ed.
+ Boston, MA: Academic Press, 2015.
+ 
+\end_layout
+
+\begin_layout Standard
+[2] T.
+ Hanai, “Theory of the dielectric dispersion due to the interfacial polarization
+ and its application to emulsions,” Kolloid-Zeitschrift, vol.
+ 171, no.
+ 1, pp.
+ 23–31, 1960, doi: 10.1007/BF01520320.
+ 
+\end_layout
+
+\end_body
+\end_document
