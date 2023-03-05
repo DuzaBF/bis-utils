@@ -1,6 +1,5 @@
 import csv
 import numpy
-import argparse
 import scipy.constants
 
 
@@ -38,6 +37,7 @@ class TissueData(object):
 
 
 if __name__ == "__main__":
+    import argparse
     parser = argparse.ArgumentParser(
                     prog = 'Tissue Data')
     parser.add_argument('filename') 

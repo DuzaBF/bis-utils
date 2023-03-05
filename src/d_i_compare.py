@@ -1,4 +1,4 @@
-import scipy.constants 
+import scipy.constants
 
 '''
 This module contains a function, which compares conductivity and displacement currents for a given media and frequency.
