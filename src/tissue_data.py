@@ -21,20 +21,29 @@ class TissueData(object):
         self.eps = numpy.array(self.eps)
 
     def __str__(self) -> str:
-        width = 11
-        rstr = self.name + "\n" + "{:>{width}} | {:>{width}} | {:>{width}}\n".format("freq [Hz]","sigma [S/m]","eps",width=width) 
-        rstr = rstr + "{:->{width}} | {:->{width}} | {:->{width}}\n".format("","","",width=width)
+        wd = 11
+        rstr = self.name + "\n" + "{:>{width}} | {:>{width}} | {:>{width}}\n".format("freq [Hz]","sigma [S/m]","eps",width=wd) 
+        rstr = rstr + "{:->{width}} | {:->{width}} | {:->{width}}\n".format("","","",width=wd)
         for i,_ in enumerate(self.freq):
-            rstr = rstr + "{:>{width}} | {:>{width}} | {:>{width}}\n".format(self.freq[i],self.sigma[i],self.eps[i],width=width)
+            rstr = rstr + "{:>{width}} | {:>{width}} | {:>{width}}\n".format(self.freq[i],self.sigma[i],self.eps[i],width=wd)
         return rstr
     
     def __repr__(self) -> str:
         return str(self)
 
-    @property
-    def complex_sigma(self):
-        return self.sigma + numpy.multiply(self.freq, self.eps * scipy.constants.epsilon_0) * 1j * 2*scipy.constants.pi  
+ 
+class TissueDataComplex(TissueData):
 
+    def __init__(self, filename) -> None:
+        super().__init__(filename)
+        self.complex_sigma = self.sigma + numpy.multiply(self.freq, self.eps * scipy.constants.epsilon_0) * 1j * 2*scipy.constants.pi 
+    
+    def __str__(self) -> str:
+        wd = 11
+        rstr = self.name + "\n{:>{width}} | {:>{width}}\n".format("freq [Hz]","sigma [S/m]",width=wd)
+        for i, f in enumerate(self.freq):
+            rstr = rstr + "{:>{width}} | {:>{width}}\n".format(f,"{:.3f}".format(self.complex_sigma[i]),width=wd)
+        return rstr
 
 if __name__ == "__main__":
     import argparse
@@ -44,9 +53,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     td = TissueData(args.filename)
-
     print(td)
-    str = "{:>{width}} | {:>{width}}\n".format("freq [Hz]","sigma [S/m]",width=10)
-    for i, f in enumerate(td.freq):
-        str = str + "{:>{width}} | {:>{width}}\n".format(f,"{:.3f}".format(td.complex_sigma[i]),width=10)
-    print(str)
+
+    tdc = TissueDataComplex(args.filename)
+    print(tdc)
+    print(super(TissueDataComplex, tdc).__str__())
