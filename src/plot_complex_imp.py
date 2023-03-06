@@ -30,35 +30,34 @@ def plot_imp_data(data=None, figure=None, freq=None, xaxis_name="", yaxis_name="
 
 if __name__ == "__main__":
     import argparse
-    import tissue_data
+    import tissue_data as td
     import electrical_sounding as es
     parser = argparse.ArgumentParser(
-                    prog = 'Plot complex impedance')
+                    prog = 'Plot complex conductivity')
     parser.add_argument('-f', '--fat', required=False) 
     parser.add_argument('-m', '--muscle', required=False) 
     args = parser.parse_args()
 
-    td_fat = tissue_data.TissueDataComplex(args.fat)
-    td_muscle = tissue_data.TissueDataComplex(args.muscle)
+    tdf_fat = td.TabularDataFile(args.fat)
+    tdf_muscle = td.TabularDataFile(args.muscle)
+
+    td_fat = td.TissueDataComplex(freq=tdf_fat.data.columns[0], sigma_real=tdf_fat.data.columns[1], eps=tdf_fat.data.columns[2], name=args.fat)
+    td_muscle = td.TissueDataComplex(freq=tdf_muscle.data.columns[0], sigma_real=tdf_muscle.data.columns[1], eps=tdf_muscle.data.columns[2], name=args.muscle)
 
     L = 30 * 10**(-3) # [m]
     s = 10 * 10**(-3) # [m]
     d_1 = 10 * 10**(-3) # [m]
 
-    a = numpy.array(list(zip(td_fat.complex_sigma, td_muscle.complex_sigma)))
-    print(a)
-    b = list(map(lambda x: es.apparent_conductivity(x[0], x[1], L, s, d_1), zip(td_fat.complex_sigma, td_muscle.complex_sigma)))
-    print(b)
-
-    sigma_apparent = numpy.array(list(map(lambda x: es.apparent_conductivity(x[0], x[1], L, s, d_1), zip(td_fat.complex_sigma, td_muscle.complex_sigma))))
+    sigma_apparent = numpy.fromiter(map(lambda x: es.apparent_conductivity(x[0], x[1], L, s, d_1), zip(td_fat.complex_sigma, td_muscle.complex_sigma)), dtype=numpy.csingle)
+    td_apparent = td.TissueDataComplex(freq=td_fat.freq, complex_sigma=sigma_apparent, name="apparent")
     print(td_fat)
     print(td_muscle)
-    print(sigma_apparent)
+    print(td_apparent)
 
     figure = make_figure()
 
     plot_imp_data(data=td_fat.complex_sigma, figure=figure)
     plot_imp_data(data=td_muscle.complex_sigma, figure=figure)
-    plot_imp_data(data=sigma_apparent, figure=figure)
+    plot_imp_data(data=td_apparent.complex_sigma, figure=figure)
 
     plt.show()
