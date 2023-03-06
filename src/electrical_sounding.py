@@ -28,8 +28,10 @@ def two_layer_factor(sigma_1, sigma_2, L, s, d_1):
 def Z_two(sigma_1, sigma_2, L, s, d_1):
     return Z_single(sigma_1, L, s) + (1/sigma_1) * (2/math.pi) * (2 * two_layer_factor(sigma_1, sigma_2, L, s, d_1))
 
-def apparent_conductivity(Z, L, s):
-    return (1/Z) * (2/math.pi) * (one_over(L, -1 * s) - one_over(L, s))
+def apparent_conductivity(sigma_1, sigma_2, L, s, d_1):
+    sigma_a = (1/Z_two(sigma_1, sigma_2, L, s, d_1)) * (2/math.pi) * (one_over(L, -1 * s) - one_over(L, s))
+    return complex("{}{}{}j".format(sigma_a.real, ["+","-"][sigma_a.imag < 0], sigma_a.imag))
+
 
 if __name__ == "__main__":
     L = 30 * 10**(-3) # [m]
