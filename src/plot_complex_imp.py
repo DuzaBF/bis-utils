@@ -48,7 +48,11 @@ if __name__ == "__main__":
     s = 10 * 10**(-3) # [m]
     d_1 = 10 * 10**(-3) # [m]
 
-    sigma_apparent = numpy.fromiter(map(lambda x: es.apparent_conductivity(x[0], x[1], L, s, d_1), zip(td_fat.complex_sigma, td_muscle.complex_sigma)), dtype=numpy.csingle)
+    geom_coef_1 = es.single_layer_geom_coef(L, s)
+    k_12_f = numpy.fromiter(map(lambda x: es.K_12(x[0], x[1]), zip(td_fat.complex_sigma, td_muscle.complex_sigma)), dtype=numpy.csingle)
+    geom_coef_2 = numpy.fromiter(map(lambda x : es.two_layer_geom_coef(x, L, s, d_1), k_12_f), dtype=numpy.csingle)
+
+    sigma_apparent = numpy.fromiter(map(lambda x: es.apparent_conductivity(x[0], geom_coef_1, x[1]), zip(td_fat.complex_sigma, geom_coef_2)), dtype=numpy.csingle)
     td_apparent = td.TissueDataComplex(freq=td_fat.freq, complex_sigma=sigma_apparent, name="apparent")
     print(td_fat)
     print(td_muscle)
