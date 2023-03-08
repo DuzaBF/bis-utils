@@ -84,7 +84,11 @@ Reflection coefficient:
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula $K_{12}=\frac{\rho_{2}-\rho_{1}}{\rho_{2}+\rho_{1}}=\frac{\sigma_{1}-\sigma_{2}}{\sigma_{1}+\sigma_{2}}$
+\begin_inset Formula 
+\[
+K_{12}=\frac{\rho_{2}-\rho_{1}}{\rho_{2}+\rho_{1}}=\frac{\sigma_{1}-\sigma_{2}}{\sigma_{1}+\sigma_{2}}
+\]
+
 \end_inset
 
 
