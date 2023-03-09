@@ -20,7 +20,7 @@ def single_layer_geom_coef(L, s):
     return (2/math.pi) * (one_over(L, -1 * s) - one_over(L, s))
 
 def K_12(sigma_1, sigma_2):
-    return (sigma_1 - sigma_2) / (sigma_1 - sigma_2)
+    return (sigma_1 - sigma_2) / (sigma_1 + sigma_2)
 
 def two_layer_factor(K_12, L, s, d_1):
     return mpmath.nsum(lambda n: (K_12 ** n) * (one_over_root(L, -1 * s, n, d_1) - one_over_root(L, s, n, d_1)), [1, mpmath.inf])
