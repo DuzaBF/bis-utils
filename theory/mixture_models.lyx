@@ -100,7 +100,7 @@ General Hanai equation for suspension of spherical particles in medium for
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\frac{\boldsymbol{\mathbf{\varepsilon}}-\boldsymbol{\varepsilon}_{p}}{\boldsymbol{\varepsilon}_{m}-\boldsymbol{\varepsilon}_{p}}\left(\frac{\boldsymbol{\varepsilon}_{m}}{\boldsymbol{\mathbf{\varepsilon}}}\right)^{1/3}=1-\Phi
+\frac{\varepsilon^{*}-\varepsilon_{p}^{*}}{\varepsilon_{m}^{*}-\varepsilon_{p}^{*}}\left(\frac{\varepsilon_{m}^{*}}{\varepsilon^{*}}\right)^{1/3}=1-\Phi
 \]
 
 \end_inset
@@ -109,21 +109,21 @@ where
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula $\boldsymbol{\mathbf{\varepsilon}}$
+\begin_inset Formula $\varepsilon^{*}$
 \end_inset
 
  - complex permittivity of the suspension;
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula $\boldsymbol{\varepsilon}_{p}$
+\begin_inset Formula $\varepsilon_{p}^{*}$
 \end_inset
 
  - complex permittivity of the particles;
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula $\boldsymbol{\varepsilon}_{m}$
+\begin_inset Formula $\varepsilon_{m}^{*}$
 \end_inset
 
  - complex permittivity of the medium;
@@ -144,7 +144,7 @@ Biological tissues can be viewed as conductors with some dielectric properties.
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\boldsymbol{\sigma}=\sigma'+j\omega\varepsilon'
+\sigma^{*}=\sigma'+j\omega\varepsilon'
 \]
 
 \end_inset
@@ -159,7 +159,7 @@ The complex permittivity is defined as:
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\boldsymbol{\varepsilon}=\varepsilon'-j\frac{\sigma'}{\omega}
+\varepsilon^{*}=\varepsilon'-j\frac{\sigma'}{\omega}
 \]
 
 \end_inset
@@ -171,7 +171,7 @@ The complex permittivity is defined as:
 The values for conductivity and permittivity with prime are usually given
  in tissue properties charts.
  Note that 
-\begin_inset Formula $\boldsymbol{\varepsilon}=\frac{\boldsymbol{\sigma}}{j\omega}$
+\begin_inset Formula $\varepsilon^{*}=\frac{\sigma^{*}}{j\omega}$
 \end_inset
 
 .
@@ -184,9 +184,145 @@ In terms of complex conductivity Hanai equation is written as:
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\frac{\sigma-\sigma_{p}}{\sigma_{m}-\sigma_{p}}\left(\frac{\sigma_{m}}{\sigma}\right)^{1/3}=1-\Phi
+\frac{\sigma^{*}-\sigma_{p}^{*}}{\sigma_{m}^{*}-\sigma_{p}^{*}}\left(\frac{\sigma_{m}^{*}}{\sigma^{*}}\right)^{1/3}=1-\Phi
 \]
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+With the application to the biological tissues and the assessment of water
+ content in the tissues the following approach and assumptions are used:
+\end_layout
+
+\begin_layout Enumerate
+The tissue is considered to be a oil-in-water type emulsion.
+ 
+\end_layout
+
+\begin_layout Enumerate
+At low frequencies the extracellular fluid is considered purely conductive
+ and cells and other particles are considered purely non-conductive.
+ The Hanai equation can be written as: 
+\begin_inset Formula 
+\[
+\frac{\sigma_{LF}}{\sigma_{ECW}}=\left(1-\Phi_{LF}\right)^{3/2}
+\]
+
+\end_inset
+
+where: 
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula $\sigma_{LF}$
+\end_inset
+
+- apparent conductivity (purely real) of the tissue; 
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula $\sigma_{ECW}$
+\end_inset
+
+ - conductivity of the extracellular fluid (purely real).
+\begin_inset Newline newline
+\end_inset
+
+The volume concentration of non-conductive particles in the tissue at low
+ frequencies 
+\begin_inset Formula $\Phi_{LF}$
+\end_inset
+
+ is then:
+\begin_inset Formula 
+\[
+\Phi_{LF}=\frac{V_{tot}-V_{ECW}}{V_{tot}}
+\]
+
+\end_inset
+
+where:
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula $V_{tot}$
+\end_inset
+
+ - total body volume;
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula $V_{ECW}$
+\end_inset
+
+ - volume of extracellular fluid.
+\end_layout
+
+\begin_layout Enumerate
+At high frequencies the cell membrane and cells are considered purely conductive.
+ The Hanai equation can be written as:
+\begin_inset Formula 
+\[
+\frac{\sigma_{HF}}{\sigma_{TBF}}=\left(1-\Phi_{HF}\right)^{3/2}
+\]
+
+\end_inset
+
+where: 
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula $\sigma_{HF}$
+\end_inset
+
+- apparent conductivity (purely real) of the emulsion; 
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula $\sigma_{TBF}$
+\end_inset
+
+ - conductivity of the total body fluid (purely real).
+\begin_inset Newline newline
+\end_inset
+
+The volume concentration of non-conductive particles in the tissue at high
+ frequencies is then:
+\begin_inset Formula 
+\[
+\Phi_{HF}=\frac{V_{tot}-\left(V_{ECW}+V_{ICW}\right)}{V_{tot}}
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $V_{ICW}$
+\end_inset
+
+ - volume of intracellular fluid.
+\end_layout
+
+\begin_layout Enumerate
+The conductivity of the total body fluid can be also expressed with a Hanai
+ equation as an emulsion of intracellular fluid in the extracellular fluid:
+\begin_inset Formula 
+\[
+\frac{\sigma_{TWB}-\sigma_{ECW}}{\sigma_{ECW}-\sigma_{ICW}}\left(\frac{\sigma_{ECW}}{\sigma_{TBW}}\right)^{3/2}=1-\Phi_{ICW}
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\Phi_{ICW}=\frac{V_{ICW}}{V_{TBF}}$
 \end_inset
 
 
@@ -212,6 +348,31 @@ References:
  171, no.
  1, pp.
  23–31, 1960, doi: 10.1007/BF01520320.
+ 
+\end_layout
+
+\begin_layout Standard
+[3] A.
+ De Lorenzo, A.
+ Andreoli, J.
+ Matthie, and P.
+ Withers, “Predicting body cell mass with bioimpedance by using theoretical
+ methods: a technological review,” Journal of Applied Physiology, vol.
+ 82, no.
+ 5, pp.
+ 1542–1558, May 1997, doi: 10.1152/jappl.1997.82.5.1542.
+ 
+\end_layout
+
+\begin_layout Standard
+[4] J.
+ R.
+ Matthie, “Second generation mixture theory equation for estimating intracellula
+r water using bioimpedance spectroscopy,” Journal of Applied Physiology,
+ vol.
+ 99, no.
+ 2, pp.
+ 780–781, 2005, doi: 10.1152/japplphysiol.00145.2005.
  
 \end_layout
 
