@@ -36,11 +36,12 @@ def impedance(sigma, geom_coef):
     return geom_coef / sigma
 
 if __name__ == "__main__":
-    L = 30 * 10**(-3) # [m]
-    s = 10 * 10**(-3) # [m]
-    d_1 = 10 * 10**(-3) # [m]
-    sigma_1 = 0.02 # [S/m]
-    sigma_2 = 0.34 # [S/m]
+    import parameters
+    L = parameters.L
+    s = parameters.s
+    d_1 = parameters.d_1
+    sigma_1 = parameters.sigma_1
+    sigma_2 = parameters.sigma_2
 
     print("{:>40} {:>10} {} [Ohm]".format("Impedance of a single fat layer:", " Z =", impedance(sigma_1, single_layer_geom_coef(L, s))))
     print("{:>40} {:>10} {} [Ohm]".format("Impedance of a fat and muscle layers:", "Z =", impedance(sigma_1, two_layer_geom_coef(K_12(sigma_1, sigma_2), L, s, d_1))))

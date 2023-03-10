@@ -17,6 +17,7 @@ if __name__ == "__main__":
     import argparse
     import tissue_data as td
     import electrical_sounding as es
+    import parameters
     parser = argparse.ArgumentParser(
                     prog = 'Plot complex conductivity')
     parser.add_argument('-f', '--fat', required=False) 
@@ -29,9 +30,9 @@ if __name__ == "__main__":
     td_fat = td.TissueDataComplex(freq=tdf_fat.data.columns[0], sigma_real=tdf_fat.data.columns[1], eps=tdf_fat.data.columns[2], name=args.fat)
     td_muscle = td.TissueDataComplex(freq=tdf_muscle.data.columns[0], sigma_real=tdf_muscle.data.columns[1], eps=tdf_muscle.data.columns[2], name=args.muscle)
 
-    L = 30 * 10**(-3) # [m]
-    s = 10 * 10**(-3) # [m]
-    d_1 = 10 * 10**(-3) # [m]
+    L = parameters.L
+    s = parameters.s
+    d_1 = parameters.d_1
 
     geom_coef_1 = es.single_layer_geom_coef(L, s)
     k_12_f = numpy.fromiter(map(lambda x: es.K_12(x[0], x[1]), zip(td_fat.complex_sigma, td_muscle.complex_sigma)), dtype=numpy.csingle)
