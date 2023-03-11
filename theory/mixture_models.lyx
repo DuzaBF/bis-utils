@@ -241,7 +241,7 @@ The volume concentration of non-conductive particles in the tissue at low
  is then:
 \begin_inset Formula 
 \[
-\Phi_{LF}=\frac{V_{tot}-V_{ECW}}{V_{tot}}
+\Phi_{LF}=1-\frac{V_{ECW}}{V_{tot}}
 \]
 
 \end_inset
@@ -299,7 +299,7 @@ The volume concentration of non-conductive particles in the tissue at high
  frequencies is then:
 \begin_inset Formula 
 \[
-\Phi_{HF}=\frac{V_{tot}-\left(V_{ECW}+V_{ICW}\right)}{V_{tot}}
+\Phi_{HF}=1-\frac{V_{ECW}+V_{ICW}}{V_{tot}}
 \]
 
 \end_inset
@@ -322,7 +322,7 @@ The conductivity of the total body fluid can be also expressed with a Hanai
 \end_inset
 
 where 
-\begin_inset Formula $\Phi_{ICW}=\frac{V_{ICW}}{V_{TBF}}$
+\begin_inset Formula $\Phi_{ICW}=\frac{V_{ICW}}{V_{TBF}}=\frac{V_{ICW}}{V_{ECW}+V_{ICW}}$
 \end_inset
 
 
