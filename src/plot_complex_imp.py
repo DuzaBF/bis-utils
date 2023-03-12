@@ -23,10 +23,17 @@ def make_figure():
                         transform=axes.get_xaxis_transform(), clip_on=False)
     return figure
 
-def plot_imp_data(data=None, figure=None, freq=None, xaxis_name="", yaxis_name="", title=0):
+def plot_imp_data(data=None, figure=None, freq=None, label="data", linestyle="solid", xaxis_name=None, yaxis_name=None, title=None):
     if figure is None:
         figure = plt.figure()
-    figure.axes[0].plot(data.real, data.imag)
+    figure.axes[0].plot(data.real, data.imag, label=label, linestyle=linestyle)
+    figure.axes[0].legend()
+    if xaxis_name is not None:
+        figure.axes[0].set_xlabel(xaxis_name)
+    if yaxis_name is not None:
+        figure.axes[0].set_ylabel(yaxis_name)
+    if title is not None:
+        figure.axes[0].set_title(title)
 
 if __name__ == "__main__":
     import argparse
@@ -61,8 +68,8 @@ if __name__ == "__main__":
 
     figure = make_figure()
 
-    plot_imp_data(data=td_fat.complex_sigma, figure=figure)
-    plot_imp_data(data=td_muscle.complex_sigma, figure=figure)
-    plot_imp_data(data=td_apparent.complex_sigma, figure=figure)
+    plot_imp_data(data=td_fat.complex_sigma, figure=figure, label="Fat", xaxis_name="Complex conductivity real part, [S/m]", yaxis_name="Complex conductivity imaginary part, [S/m]", title="Complex conductivity")
+    plot_imp_data(data=td_muscle.complex_sigma, figure=figure, label="Muscle")
+    plot_imp_data(data=td_apparent.complex_sigma, figure=figure, label="Apparent", linestyle="dashed")
 
     plt.show()

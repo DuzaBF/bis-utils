@@ -7,11 +7,18 @@ def make_figure():
     axes = figure.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
     return figure
 
-def plot_imp_data(freq=None, data=None, figure=None, xaxis_name="", yaxis_name="", title=0):
+def plot_imp_data(freq=None, data=None, figure=None, label="data", linestyle="solid", xaxis_name=None, yaxis_name=None, title=None):
     if figure is None:
         figure = plt.figure()
-    figure.axes[0].plot(freq, numpy.abs(data))
+    figure.axes[0].plot(freq, data, label=label, linestyle=linestyle)
     figure.axes[0].set_xscale("log")
+    figure.axes[0].legend()
+    if xaxis_name is not None:
+        figure.axes[0].set_xlabel(xaxis_name)
+    if yaxis_name is not None:
+        figure.axes[0].set_ylabel(yaxis_name)
+    if title is not None:
+        figure.axes[0].set_title(title)
 
 if __name__ == "__main__":
     import argparse
@@ -44,10 +51,19 @@ if __name__ == "__main__":
     print(td_muscle)
     print(td_apparent)
 
-    figure = make_figure()
+    figure_abs = make_figure()
+    plot_imp_data(freq=td_fat.freq, data=numpy.abs(td_fat.complex_sigma), figure=figure_abs, label="Fat", xaxis_name="Frequency, [Hz]", yaxis_name="Complex conductivity magnitude, [S/m]", title="Complex conductivity")
+    plot_imp_data(freq=td_fat.freq, data=numpy.abs(td_muscle.complex_sigma), figure=figure_abs, label="Muscle")
+    plot_imp_data(freq=td_fat.freq, data=numpy.abs(td_apparent.complex_sigma), figure=figure_abs, label="Apparent", linestyle="dashed")
 
-    plot_imp_data(freq=td_fat.freq, data=td_fat.complex_sigma, figure=figure)
-    plot_imp_data(freq=td_fat.freq, data=td_muscle.complex_sigma, figure=figure)
-    plot_imp_data(freq=td_fat.freq, data=sigma_apparent, figure=figure)
+    figure_real = make_figure()
+    plot_imp_data(freq=td_fat.freq, data=numpy.real(td_fat.complex_sigma), figure=figure_real, label="Fat", xaxis_name="Frequency, [Hz]", yaxis_name="Complex conductivity real part, [S/m]", title="Complex conductivity")
+    plot_imp_data(freq=td_fat.freq, data=numpy.real(td_muscle.complex_sigma), figure=figure_real, label="Muscle")
+    plot_imp_data(freq=td_fat.freq, data=numpy.real(td_apparent.complex_sigma), figure=figure_real, label="Apparent", linestyle="dashed")
+
+    figure_imag = make_figure()
+    plot_imp_data(freq=td_fat.freq, data=numpy.imag(td_fat.complex_sigma), figure=figure_imag, label="Fat", xaxis_name="Frequency, [Hz]", yaxis_name="Complex conductivity imaginary part, [S/m]", title="Complex conductivity")
+    plot_imp_data(freq=td_fat.freq, data=numpy.imag(td_muscle.complex_sigma), figure=figure_imag, label="Muscle")
+    plot_imp_data(freq=td_fat.freq, data=numpy.imag(td_apparent.complex_sigma), figure=figure_imag, label="Apparent", linestyle="dashed")
 
     plt.show()
