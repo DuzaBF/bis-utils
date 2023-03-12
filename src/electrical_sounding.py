@@ -40,8 +40,8 @@ if __name__ == "__main__":
     L = parameters.L
     s = parameters.s
     d_1 = parameters.d_1
-    sigma_1 = parameters.sigma_1
-    sigma_2 = parameters.sigma_2
+    sigma_1 = parameters.sigma_fat
+    sigma_2 = parameters.sigma_muscle
 
     print("{:>40} {:>10} {} [Ohm]".format("Impedance of a single fat layer:", " Z =", impedance(sigma_1, single_layer_geom_coef(L, s))))
     print("{:>40} {:>10} {} [Ohm]".format("Impedance of a fat and muscle layers:", "Z =", impedance(sigma_1, two_layer_geom_coef(K_12(sigma_1, sigma_2), L, s, d_1))))

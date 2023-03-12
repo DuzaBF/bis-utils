@@ -76,6 +76,10 @@
 \begin_body
 
 \begin_layout Standard
+Hanai mixture model
+\end_layout
+
+\begin_layout Standard
 Mixture model provide a formula for the electrical properties of the heterogeneo
 us media based on a properties of constituting substances and structure
  of the media.
@@ -168,8 +172,8 @@ The complex permittivity is defined as:
 \end_layout
 
 \begin_layout Standard
-The values for conductivity and permittivity with prime are usually given
- in tissue properties charts.
+The values for real part of conductivity and real part of permittivity (relative
+ to vacuum permittivity) are usually given in tissue properties charts.
  Note that 
 \begin_inset Formula $\varepsilon^{*}=\frac{\sigma^{*}}{j\omega}$
 \end_inset
@@ -226,7 +230,7 @@ where:
 \end_inset
 
 
-\begin_inset Formula $\sigma_{ECW}$
+\begin_inset Formula $\sigma_{ECF}$
 \end_inset
 
  - conductivity of the extracellular fluid (purely real).
@@ -241,7 +245,7 @@ The volume concentration of non-conductive particles in the tissue at low
  is then:
 \begin_inset Formula 
 \[
-\Phi_{LF}=1-\frac{V_{ECW}}{V_{tot}}
+\Phi_{LF}=1-\frac{V_{ECF}}{V_{tot}}
 \]
 
 \end_inset
@@ -259,7 +263,7 @@ where:
 \end_inset
 
 
-\begin_inset Formula $V_{ECW}$
+\begin_inset Formula $V_{ECF}$
 \end_inset
 
  - volume of extracellular fluid.
@@ -299,13 +303,13 @@ The volume concentration of non-conductive particles in the tissue at high
  frequencies is then:
 \begin_inset Formula 
 \[
-\Phi_{HF}=1-\frac{V_{ECW}+V_{ICW}}{V_{tot}}
+\Phi_{HF}=1-\frac{V_{ECF}+V_{ICF}}{V_{tot}}
 \]
 
 \end_inset
 
 where 
-\begin_inset Formula $V_{ICW}$
+\begin_inset Formula $V_{ICF}$
 \end_inset
 
  - volume of intracellular fluid.
@@ -316,13 +320,94 @@ The conductivity of the total body fluid can be also expressed with a Hanai
  equation as an emulsion of intracellular fluid in the extracellular fluid:
 \begin_inset Formula 
 \[
-\frac{\sigma_{TWB}-\sigma_{ECW}}{\sigma_{ECW}-\sigma_{ICW}}\left(\frac{\sigma_{ECW}}{\sigma_{TBW}}\right)^{3/2}=1-\Phi_{ICW}
+\frac{\sigma_{TBW}-\sigma_{ECF}}{\sigma_{ECF}-\sigma_{ICF}}\left(\frac{\sigma_{ECF}}{\sigma_{TBW}}\right)^{3/2}=1-\Phi_{ICF}
 \]
 
 \end_inset
 
 where 
-\begin_inset Formula $\Phi_{ICW}=\frac{V_{ICW}}{V_{TBF}}=\frac{V_{ICW}}{V_{ECW}+V_{ICW}}$
+\begin_inset Formula $\Phi_{ICF}=\frac{V_{ICF}}{V_{TBW}}=\frac{V_{ICF}}{V_{ECF}+V_{ICF}}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Properties of cells 
+\end_layout
+
+\begin_layout Standard
+Complex conductivity of the extracellular fluid is given by:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\sigma_{ECF}^{*}=\sigma_{ECF}+j\omega\varepsilon_{ECF}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Complex conductivity of the cytoplasm (intracellular fluid) is given by:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\sigma_{ICF}^{*}=\sigma_{ICF}+j\omega\varepsilon_{ICF}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Total capacitance of the cell can be viewed as a series combination if the
+ membrane capacitance and cytoplasm capacitance.
+ Complex permittivity of the cell is given by:
+\begin_inset Formula 
+\[
+\varepsilon_{cell}^{*}=\varepsilon_{ICF}^{*}\left(1+\frac{2\varepsilon_{ICF}^{*}}{C_{m}t}\right)^{-1}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $C_{m}$
+\end_inset
+
+ - cell membrane capacitance per unit length;
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $t$
+\end_inset
+
+ - size of the cell.
+\end_layout
+
+\begin_layout Standard
+Complex conductivity of the cell than can is given by:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\sigma_{cell}^{*}=\sigma_{ICF}^{*}\left(1+\frac{2\sigma_{ICF}^{*}}{j\omega C_{m}t}\right)^{-1}
+\]
+
 \end_inset
 
 
@@ -373,6 +458,26 @@ r water using bioimpedance spectroscopy,” Journal of Applied Physiology,
  99, no.
  2, pp.
  780–781, 2005, doi: 10.1152/japplphysiol.00145.2005.
+ 
+\end_layout
+
+\begin_layout Standard
+[5] S.
+ W.
+ Smye, C.
+ J.
+ Evans, M.
+ P.
+ Robinson, and B.
+ D.
+ Sleeman, “Modelling the electrical properties of tissue as a porous medium,”
+ Phys.
+ Med.
+ Biol., vol.
+ 52, no.
+ 23, pp.
+ 7007–7022, Dec.
+ 2007, doi: 10.1088/0031-9155/52/23/016.
  
 \end_layout
 
