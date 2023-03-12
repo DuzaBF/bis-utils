@@ -16,6 +16,7 @@ if __name__ == "__main__":
     csigma_fat = td.TissueDataComplex.to_complex(freq, parameters.sigma_fat, parameters.eps_fat)
     vol_conc = 1 - hanai_equation(csigma_fat, csigma_ecf, csigma_cell)
 
+    print("{:>32} {:>6}: {:>5.4f} S/m at {:.0f} kHz".format("Complex conductivity of", "a fat", csigma_fat, freq/1000))
     print("{:>32} {:>6}: {:>5.4f} S/m at {:.0f} kHz".format("Complex conductivity of", "an ICF", csigma_icf, freq/1000))
     print("{:>32} {:>6}: {:>5.4f} S/m at {:.0f} kHz".format("Complex conductivity of", "a cell", csigma_cell, freq/1000))
     print("{:>32} {:>6}: {:>5.4f} S/m at {:.0f} kHz".format("Complex conductivity of", "an ECF", csigma_ecf, freq/1000))
