@@ -212,7 +212,7 @@ At low frequencies the extracellular fluid is considered purely conductive
  The Hanai equation can be written as: 
 \begin_inset Formula 
 \[
-\frac{\sigma_{LF}}{\sigma_{ECW}}=\left(1-\Phi_{LF}\right)^{3/2}
+\frac{\sigma_{LF}}{\sigma_{ECF}}=\left(1-\Phi_{LF}\right)^{3/2}
 \]
 
 \end_inset
@@ -271,10 +271,11 @@ where:
 
 \begin_layout Enumerate
 At high frequencies the cell membrane and cells are considered purely conductive.
+ The tissue is a mix of other non-conductive elements in a total body fluid.
  The Hanai equation can be written as:
 \begin_inset Formula 
 \[
-\frac{\sigma_{HF}}{\sigma_{TBF}}=\left(1-\Phi_{HF}\right)^{3/2}
+\frac{\sigma_{HF}}{\sigma_{TBW}}=\left(1-\Phi_{HF}\right)^{3/2}
 \]
 
 \end_inset
@@ -316,17 +317,76 @@ where
 \end_layout
 
 \begin_layout Enumerate
+The ratio 
+\begin_inset Formula $\frac{V_{ICF}}{V_{ECF}}$
+\end_inset
+
+can be expressed from the relations as:
+\begin_inset Formula 
+\[
+1+\frac{V_{ICF}}{V_{ECF}}=\left(\frac{\sigma_{ECF}}{\sigma_{TWB}}\frac{\sigma_{HF}}{\sigma_{LF}}\right)^{2/3}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
 The conductivity of the total body fluid can be also expressed with a Hanai
  equation as an emulsion of intracellular fluid in the extracellular fluid:
 \begin_inset Formula 
 \[
-\frac{\sigma_{TBW}-\sigma_{ECF}}{\sigma_{ECF}-\sigma_{ICF}}\left(\frac{\sigma_{ECF}}{\sigma_{TBW}}\right)^{3/2}=1-\Phi_{ICF}
+\frac{\sigma_{TBW}-\sigma_{ICF}}{\sigma_{ECF}-\sigma_{ICF}}\left(\frac{\sigma_{ECF}}{\sigma_{TBW}}\right)^{1/3}=1-\Phi_{ICF}=\Phi_{ECF}
 \]
 
 \end_inset
 
 where 
 \begin_inset Formula $\Phi_{ICF}=\frac{V_{ICF}}{V_{TBW}}=\frac{V_{ICF}}{V_{ECF}+V_{ICF}}$
+\end_inset
+
+ and 
+\begin_inset Formula $\Phi_{ECF}=\frac{V_{ECF}}{V_{ICF}+V_{ECF}}$
+\end_inset
+
+.
+ This leads to the relation:
+\begin_inset Formula 
+\[
+1+\frac{V_{ICF}}{V_{ECF}}=\frac{\sigma_{ECF}-\sigma_{ICF}}{\sigma_{TBW}-\sigma_{ICF}}\left(\frac{\sigma_{TBW}}{\sigma_{ECF}}\right)^{1/3}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+From the relations conductivity of total body fluid can be expressed as:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\sigma_{TBW}=\frac{\sigma_{ICF}\sigma_{ECF}}{\sigma_{ECF}-\left(\sigma_{ECF}-\sigma_{ICF}\right)\left(\frac{\sigma_{LF}}{\sigma_{HF}}\right)^{2/3}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Combining yeilds:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+1+\frac{V_{ICF}}{V_{ECF}}=\left(\frac{\sigma_{ECF}}{\sigma_{ICF}}\frac{\sigma_{HF}}{\sigma_{LF}}-\frac{\sigma_{ECF}-\sigma_{ICF}}{\sigma_{ICF}}\right)^{2/3}
+\]
+
 \end_inset
 
 
