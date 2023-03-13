@@ -42,8 +42,8 @@ if __name__ == "__main__":
     import parameters
     parser = argparse.ArgumentParser(
                     prog = 'Plot complex conductivity')
-    parser.add_argument('-f', '--fat', required=False) 
-    parser.add_argument('-m', '--muscle', required=False) 
+    parser.add_argument('-f', '--fat', required=False)
+    parser.add_argument('-m', '--muscle', required=False)
     args = parser.parse_args()
 
     tdf_fat = td.TabularDataFile(args.fat)
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     figure = make_figure()
 
     plot_imp_data(data=td_fat.complex_sigma, figure=figure, label="Fat", xaxis_name="Complex conductivity real part, [S/m]", yaxis_name="Complex conductivity imaginary part, [S/m]", title="Complex conductivity")
-    plot_imp_data(data=td_muscle.complex_sigma, figure=figure, label="Muscle")
+    # plot_imp_data(data=td_muscle.complex_sigma, figure=figure, label="Muscle")
     plot_imp_data(data=td_apparent.complex_sigma, figure=figure, label="Apparent", linestyle="dashed")
 
     plt.show()
