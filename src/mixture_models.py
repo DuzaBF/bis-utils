@@ -9,7 +9,7 @@ def cell_sigma(sigma_icf, C_m, t, freq):
 def one_plus_Vi_Ve_var1(sigma_ecf, sigma_tbw, sigma_hf, sigma_lf):
     return ((sigma_ecf * sigma_hf) / (sigma_tbw * sigma_lf)) ** 2/3
 
-def sigma_tbw(sigma_ecf, sigma_icf, sigma_hf, sigma_lf):
+def f_sigma_tbw(sigma_ecf, sigma_icf, sigma_hf, sigma_lf):
     nom = sigma_ecf * sigma_icf
     lf_hf = (sigma_lf/sigma_hf) ** (2/3)
     denom = sigma_ecf - (sigma_ecf - sigma_icf) * lf_hf
@@ -38,13 +38,23 @@ def test2():
     import parameters
     import tissue_data as td
     freq_lf = 1000 # [Hz]
-    freq = 100000 # [Hz]
     freq_hf = 1000000 # [Hz]
-    csigma_icf = td.TissueDataComplex.to_complex(freq, parameters.sigma_icf, parameters.eps_icf)
-    csigma_ecf = td.TissueDataComplex.to_complex(freq, parameters.sigma_ecf, parameters.eps_ecf)
-    csigma_fat = td.TissueDataComplex.to_complex(freq, parameters.sigma_fat, parameters.eps_fat)
+    sigma_lf = parameters.sigma_fat_lf
+    sigma_hf = parameters.sigma_fat_hf
+    sigma_ecf = parameters.sigma_ecf
+    sigma_icf = parameters.sigma_icf
+    sigma_tbw = f_sigma_tbw(sigma_ecf, sigma_icf, sigma_hf, sigma_lf)
+    vive1 = one_plus_Vi_Ve_var1(sigma_ecf, sigma_tbw, sigma_hf, sigma_lf)
+    vive2 = one_plus_Vi_Ve_var2(sigma_ecf, sigma_icf, sigma_hf, sigma_lf)
 
+    print("Extracellular fluid conductivity: {:.4f} S/m".format(sigma_ecf))
+    print("Intracellular fluid conductivity: {:.4f} S/m".format(sigma_icf))
+    print("Apparent high frequency conductivity: {:.4f} S/m".format(sigma_hf))
+    print("Apparent low frequency conductivity: {:.4f} S/m".format(sigma_lf))
+    print("Total body water conductivity: {:.4f} S/m".format(sigma_tbw))
+    print("1+Ve/Vi: {}".format(vive1))
+    print("1+Ve/Vi: {}".format(vive2))
 
 if __name__ == "__main__":
-    # test1()
+    test2()
     pass

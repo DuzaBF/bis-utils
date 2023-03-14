@@ -27,3 +27,9 @@ eps_ecf = 80
 sigma_ecf = 1.2 # [S/m]
 C_m = 0.01 # [F/m^2]
 t = 30 * 10**(-6) # [m]
+
+sigma_fat_lf = 0.022 # [S/m]
+sigma_fat_hf = 0.025 # [S/m]
+
+sigma_muscle_lf = 0.321 # [S/m]
+sigma_muscle_hf = 0.503 # [S/m]
