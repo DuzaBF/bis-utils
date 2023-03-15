@@ -7,7 +7,10 @@ def cell_sigma(sigma_icf, C_m, t, freq):
     return sigma_icf * (1 + ((2*sigma_icf) / (1j * 2 * sc.pi * freq * C_m * t))) ** (-1)
 
 def one_plus_Vi_Ve_var1(sigma_ecf, sigma_tbw, sigma_hf, sigma_lf):
-    return ((sigma_ecf * sigma_hf) / (sigma_tbw * sigma_lf)) ** 2/3
+    return ((sigma_ecf * sigma_hf) / (sigma_tbw * sigma_lf)) ** (2/3)
+
+def one_plus_Vi_Ve_var2(sigma_ecf, sigma_icf, sigma_tbw):
+    return ((sigma_ecf - sigma_icf)/(sigma_tbw - sigma_icf)) * ((sigma_tbw/sigma_ecf) ** (1/3))
 
 def f_sigma_tbw(sigma_ecf, sigma_icf, sigma_hf, sigma_lf):
     nom = sigma_ecf * sigma_icf
@@ -15,8 +18,8 @@ def f_sigma_tbw(sigma_ecf, sigma_icf, sigma_hf, sigma_lf):
     denom = sigma_ecf - (sigma_ecf - sigma_icf) * lf_hf
     return nom / denom
 
-def one_plus_Vi_Ve_var2(sigma_ecf, sigma_icf, sigma_hf, sigma_lf):
-    return (((sigma_ecf * sigma_hf) / (sigma_icf * sigma_lf)) - ((sigma_ecf - sigma_icf) / (sigma_icf))) ** 2/3
+def one_plus_Vi_Ve_var3(sigma_ecf, sigma_icf, sigma_hf, sigma_lf):
+    return (((sigma_ecf * sigma_hf) / (sigma_icf * sigma_lf)) - ((sigma_ecf - sigma_icf) / (sigma_icf))*((sigma_hf/sigma_lf)**(1/3))) ** (2/3)
 
 def test1():
     import parameters
@@ -45,7 +48,8 @@ def test2():
     sigma_icf = parameters.sigma_icf
     sigma_tbw = f_sigma_tbw(sigma_ecf, sigma_icf, sigma_hf, sigma_lf)
     vive1 = one_plus_Vi_Ve_var1(sigma_ecf, sigma_tbw, sigma_hf, sigma_lf)
-    vive2 = one_plus_Vi_Ve_var2(sigma_ecf, sigma_icf, sigma_hf, sigma_lf)
+    vive2 = one_plus_Vi_Ve_var2(sigma_ecf, sigma_icf, sigma_tbw)
+    vive3 = one_plus_Vi_Ve_var3(sigma_ecf, sigma_icf, sigma_hf, sigma_lf)
 
     print("Extracellular fluid conductivity: {:.4f} S/m".format(sigma_ecf))
     print("Intracellular fluid conductivity: {:.4f} S/m".format(sigma_icf))
@@ -54,6 +58,7 @@ def test2():
     print("Total body water conductivity: {:.4f} S/m".format(sigma_tbw))
     print("1+Ve/Vi: {}".format(vive1))
     print("1+Ve/Vi: {}".format(vive2))
+    print("1+Ve/Vi: {}".format(vive3))
 
 if __name__ == "__main__":
     test2()
