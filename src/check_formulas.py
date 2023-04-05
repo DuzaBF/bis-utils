@@ -35,3 +35,19 @@ if __name__ == "__main__":
 
     hanai_hf_vol = hanai_hf.subs(phi_hf, phi_hf_expr)
     sym.pprint(hanai_hf_vol)
+
+    v_tot_expr_1 = sym.Eq(v_tot, sym.solve(hanai_lf_vol, v_tot)[0])
+    sym.pprint(v_tot_expr_1)
+    v_tot_expr_2 = sym.solve(hanai_hf_vol, v_tot)[0]
+    sym.pprint(v_tot_expr_2)
+
+    expr_1 = v_tot_expr_1.subs(v_tot, v_tot_expr_2)
+    sym.pprint(expr_1)
+
+    expr_2 = sym.solve(expr_1, v_icf)[0]
+    sym.pprint(expr_2)
+
+    one_vi_ve_ex = 1 + v_icf/v_ecf
+    one_vi_ve_ex_2 = sym.simplify(one_vi_ve_ex.subs(v_icf, expr_2))
+    one_vi_ve_ex_3 = sym.Eq(one_vi_ve_ex, one_vi_ve_ex_2)
+    sym.pprint(sym.simplify(one_vi_ve_ex_3))
