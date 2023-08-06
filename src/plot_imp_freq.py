@@ -52,9 +52,9 @@ if __name__ == "__main__":
     print(td_apparent)
 
     figure_abs = make_figure()
-    plot_imp_data(freq=td_fat.freq, data=numpy.abs(td_fat.complex_sigma), figure=figure_abs, label="Fat", xaxis_name="Frequency, [Hz]", yaxis_name="Complex conductivity magnitude, [S/m]")
-    plot_imp_data(freq=td_fat.freq, data=numpy.abs(td_muscle.complex_sigma), figure=figure_abs, label="Muscle")
-    plot_imp_data(freq=td_fat.freq, data=numpy.abs(td_apparent.complex_sigma), figure=figure_abs, label="Apparent", linestyle="dashed")
+    plot_imp_data(freq=td_fat.freq, data=numpy.abs(td_fat.complex_sigma), figure=figure_abs, label="Fat", xaxis_name="Frequency, [Hz]", yaxis_name="Complex conductivity magnitude, [S/m]", linestyle="dashdot")
+    plot_imp_data(freq=td_fat.freq, data=numpy.abs(td_muscle.complex_sigma), figure=figure_abs, label="Muscle", linestyle="dashed")
+    plot_imp_data(freq=td_fat.freq, data=numpy.abs(td_apparent.complex_sigma), figure=figure_abs, label="Apparent", linestyle="solid")
     textstr = "s = {s} mm\nL = {L} mm".format(s=s*1000, L=L*1000)
     props = dict(boxstyle='round', facecolor='white', alpha=0.5, edgecolor='grey')
     ax = figure_abs.axes[0]
