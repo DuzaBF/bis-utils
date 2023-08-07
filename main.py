@@ -21,6 +21,11 @@ def test1():
     sigma_a_lf = es.apparent_conductivity(sigma_fat_lf, es.single_layer_geom_coef(L, s), es.two_layer_geom_coef(es.K_12(sigma_fat_lf, sigma_muscle_lf), L, s, d_1)).real
     sigma_a_hf = es.apparent_conductivity(sigma_fat_hf, es.single_layer_geom_coef(L, s), es.two_layer_geom_coef(es.K_12(sigma_fat_hf, sigma_muscle_hf), L, s, d_1)).real
 
+    Z1_lf = es.impedance(sigma_fat_lf, es.single_layer_geom_coef(L, s))
+    Z1_hf = es.impedance(sigma_fat_hf, es.single_layer_geom_coef(L, s))
+    Z2_lf = float(es.impedance(sigma_fat_lf, es.two_layer_geom_coef(es.K_12(sigma_fat_lf, sigma_muscle_lf), L, s, d_1)))
+    Z2_hf = float(es.impedance(sigma_fat_hf, es.two_layer_geom_coef(es.K_12(sigma_fat_hf, sigma_muscle_hf), L, s, d_1)))
+
     vi_ve_true = mm.one_plus_Vi_Ve_var3(sigma_ecf, sigma_icf, sigma_fat_hf, sigma_fat_lf) - 1
     vi_ve_ap = mm.one_plus_Vi_Ve_var3(sigma_ecf, sigma_icf, sigma_a_hf, sigma_a_lf) - 1
 
@@ -38,6 +43,12 @@ def test1():
     print("{}: {:.4f}".format("Apparent volume ratio of ICF to ECF", vi_ve_ap))
 
     print("{}: {:.1f} %".format("Relative error", err * 100))
+
+    print("Measured impedance:")
+    print("{} = {:.4f} Ohm".format("Z1_lf", Z1_lf))
+    print("{} = {:.4f} Ohm".format("Z1_hf", Z1_hf))
+    print("{} = {:.4f} Ohm".format("Z2_lf", Z2_lf))
+    print("{} = {:.4f} Ohm".format("Z2_hf", Z2_hf))
 
 def main():
     parser = argparse.ArgumentParser(
