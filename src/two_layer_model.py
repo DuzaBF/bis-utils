@@ -2,6 +2,9 @@ import mpmath
 import numpy as np
 import matplotlib.pyplot as plt
 
+mpmath.dps = 15
+mpmath.pretty = True
+
 
 class TwoLayerModel:
 
@@ -40,94 +43,111 @@ class TwoLayerModel:
 
     def one_over_root(self, r, z, n):
         a = np.power(r, 2)
-        q = np.add(z, 2*n*self.d_1)
-        b = np.power(q, 2)
-        return 1/(mpmath.sqrt(a + b))
+        sz = np.add(z, 2*n*self.d_1)
+        b = np.power(sz, 2)
+        return 1/(np.sqrt(a + b))
 
     def inf_sum_potential(self, r, z):
         return mpmath.nsum(lambda n: (self.k_12 ** n) *
                            (self.one_over_root(r, -1 * z, n) + self.one_over_root(r, z, n)), [1, mpmath.inf])
 
     def field_potential(self, I, r, z):
-        q = I / (2*mpmath.pi * self.sigma_1)
+        q = I / (2*np.pi * self.sigma_1)
         return q * (self.one_over_root(r, z, 0) + self.inf_sum_potential(r, z))
 
     def field_potential_surface(self, I, r):
         return self.field_potential(I, r, 0)
 
-    def one_over_root_dr(self, r, z, n):
+    def over_root_dr(self, r, z, n):
         a = np.power(r, 2)
-        q = np.add(z, 2*n*self.d_1)
-        b = np.power(q, 2)
-        return r/(mpmath.power(a + b, 3/2))
+        sz = np.add(z, 2*n*self.d_1)
+        b = np.power(sz, 2)
+        return r * (np.power(a + b, -3/2))
 
     def inf_sum_strength_dr(self, r, z):
         return mpmath.nsum(lambda n: (self.k_12 ** n) *
-                           (self.one_over_root_dr(r, -1 * z, n) + self.one_over_root_dr(r, z, n)), [1, mpmath.inf])
+                           (self.over_root_dr(r, -1 * z, n) + self.over_root_dr(r, z, n)), [1, mpmath.inf])
 
-    def one_over_root_dz(self, r, z, n):
-        return z / (np.power(np.power(r, 2) + 2*n*self.d_1 + np.power(z, 2), 3/2))
+    def over_root_dz(self, r, z, n):
+        sz = np.add(z, 2*n*self.d_1)
+        return sz / (np.power(np.power(r, 2) + np.power(sz, 2), 3/2))
 
     def inf_sum_strength_dz(self, r, z):
         return mpmath.nsum(lambda n: (self.k_12 ** n) *
-                           (self.one_over_root_dz(r, -1 * z, n) + self.one_over_root_dz(r, z, n)), [1, mpmath.inf])
+                           (-1 * self.over_root_dz(r, -1 * z, n) + self.over_root_dz(r, z, n)), [1, mpmath.inf])
 
     def field_strength(self, I, r, z):
-        q = I / (2*mpmath.pi * self.sigma_1)
-        mdVdr = q * (self.one_over_root_dr(r, z, 0) + self.inf_sum_strength_dr(r, z))
-        mdVdz = q * (-self.inf_sum_strength_dr(r, z))
+        q = I / (2*np.pi * self.sigma_1)
+        mdVdr = q * (self.over_root_dr(r, z, 0) +
+                     self.inf_sum_strength_dr(r, z))
+        mdVdz = q * (self.over_root_dz(r, z, 0) +
+                     self.inf_sum_strength_dz(r, z))
         return (mdVdr, mdVdz)
+
 
 if __name__ == "__main__":
     print("Two Layer Model")
-    a = TwoLayerModel(0.5, 2, 5)
-    r_coords = np.linspace(1/100, 5, 50)
-    z_coords = np.linspace(1, 10, 50)
+    a = TwoLayerModel(1, 4, 0.2)
+    r_coords = np.linspace(-1, 1, 51, dtype=np.float64)
+    z_coords = np.linspace(0, 1, 50, dtype=np.float64)
     I = 1
     r, z = np.meshgrid(r_coords, z_coords)
-    line_v = []
-    line_er = []
-    line_ez = []
+
+    line = []
     v = []
+    line_er = []
     er = []
+    line_ez = []
     ez = []
-    for rr in r_coords:
-        for zz in z_coords:
-            line_v.append(a.field_potential(I, rr, zz))
+    for zz in z_coords:
+        for rr in r_coords:
+            line.append(a.field_potential(I, rr, zz))
+            # line.append(rr+zz)
             value = a.field_strength(I, rr, zz)
             line_er.append(value[0])
             line_ez.append(value[1])
-        v.append(line_v)
+        v.append(line)
         er.append(line_er)
         ez.append(line_ez)
-        line_v = []
+        line = []
         line_er = []
         line_ez = []
 
-    v = np.array(v, dtype=float)
-    er = np.array(er, dtype=float)
-    ez = np.array(ez, dtype=float)
+    v = np.array(v, np.float64)
+    v = np.clip(v, 0, 0.5)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
+    er = np.array(er, np.float64)
+    ez = np.array(ez, np.float64)
+    norm = np.sqrt(np.add(np.power(er, 2), np.power(ez, 2)))
+    er = er / norm
+    ez = ez / norm
 
-    ax.scatter(r, z, v)
-    ax.set_xlabel("r")
-    ax.set_ylabel("z")
-    ax.set_zlabel("v")
+    figure = plt.figure()
 
-    fig2 = plt.figure()
-    ax2 = fig2.add_subplot()
-    ax2.contour(r[:-1], z[:-1], v[:-1])
-    ax2.set_xlabel("r")
-    ax2.set_ylabel("z")
-    ax2.plot(r_coords[:-1], a.d_1 * np.ones(r_coords[:-1].shape), color="black")
-    ax2.plot(-r_coords[:-1], a.d_1 * np.ones(r_coords[:-1].shape), color="black")
-    ax2.invert_yaxis()
-    ax2.contour(-r[:-1], z[:-1], v[:-1])
+    ax = figure.add_subplot()
+    ax.invert_yaxis()
+    ax.set_title(r"Electric field for one-layer model for I={} A, $\sigma_1$={} Sm/m, $\sigma_2$={} Sm/m, $d_1$={} m".format(I, a.sigma_1, a.sigma_2, a.d_1))
+    ax.set_xlabel("r, m")
+    ax.set_ylabel("z, m")
 
-    fige = plt.figure()
-    axe = fige.add_subplot()
-    axe.quiver(r[:-1], z[:-1], er[:-1], ez[:-1])
+    cset_v = ax.contourf(r, z, v)
+    cbi_v = figure.colorbar(cset_v, orientation='horizontal', shrink=0.8)
+    cbi_v.set_label('Potential, V')
+    brd = ax.plot(r_coords, a.d_1 * np.ones(r_coords.shape), color="black")
+
+    n = 4
+    q_e = ax.quiver(r[1::n, 1::n], z[1::n, 1::n],
+                    er[1::n, 1::n], -ez[1::n, 1::n], norm[1::n, 1::n], pivot="mid", cmap="gist_gray",
+                    units="xy",
+                    width=0.008,
+                    headwidth=2,
+                    headlength=3,
+                    headaxislength=3,
+                    scale_units="xy",
+                    scale=10
+                    )
+    q_e.set_clim(0, 2)
+    cbi_e = figure.colorbar(q_e, orientation='horizontal', shrink=0.8)
+    cbi_e.set_label('Strength, V/m')
 
     plt.show()
