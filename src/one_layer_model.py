@@ -46,8 +46,8 @@ class OneLayerModel:
 if __name__ == "__main__":
     print("One Layer Model")
     a = OneLayerModel(1)
-    r_coords = np.linspace(-1, 1, 51, dtype=np.float128)
-    z_coords = np.linspace(0, 1, 50, dtype=np.float128)
+    r_coords = np.linspace(-1, 1, 51, dtype=np.float64)
+    z_coords = np.linspace(0, 1, 50, dtype=np.float64)
     I = 1
     r, z = np.meshgrid(r_coords, z_coords)
 
@@ -63,16 +63,25 @@ if __name__ == "__main__":
 
     ax = figure.add_subplot()
     ax.invert_yaxis()
+    ax.set_title(r"Electric field for one-layer model for I={} A, $\sigma$={} Sm/m".format(I, a.sigma))
+    ax.set_xlabel("r, m")
+    ax.set_ylabel("z, m")
 
     cset_v = ax.contourf(r, z, v)
     cbi_v = figure.colorbar(cset_v, orientation='horizontal', shrink=0.8)
     cbi_v.set_label('Potential, V')
 
     n = 8
-    M = np.hypot(er[1::n, 1::n], ez[1::n, 1::n])
     q_e = ax.quiver(r[1::n, 1::n], z[1::n, 1::n],
                     er[1::n, 1::n], -ez[1::n, 1::n], norm[1::n, 1::n], pivot="mid", cmap="gist_gray",
-                    units='width')
+                    units="xy",
+                    width=0.008,
+                    headwidth=2,
+                    headlength=3,
+                    headaxislength=3,
+                    scale_units="xy",
+                    scale=10
+                    )
     q_e.set_clim(0, 2)
     cbi_e = figure.colorbar(q_e, orientation='horizontal', shrink=0.8)
     cbi_e.set_label('Strength, V/m')
