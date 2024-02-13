@@ -114,7 +114,7 @@ if __name__ == "__main__":
         line_ez = []
 
     v = np.array(v, np.float64)
-    v = np.clip(v, 0, 0.5)
+    v = np.clip(v, -0.5, 0.5)
 
     er = np.array(er, np.float64)
     ez = np.array(ez, np.float64)
@@ -126,7 +126,7 @@ if __name__ == "__main__":
 
     ax = figure.add_subplot()
     ax.invert_yaxis()
-    ax.set_title(r"Electric field for one-layer model for I={} A, $\sigma_1$={} Sm/m, $\sigma_2$={} Sm/m, $d_1$={} m".format(I, a.sigma_1, a.sigma_2, a.d_1))
+    ax.set_title(r"Electric field for two-layer model for I={} A, $\sigma_1$={} Sm/m, $\sigma_2$={} Sm/m, $d_1$={} m".format(I, a.sigma_1, a.sigma_2, a.d_1))
     ax.set_xlabel("r, m")
     ax.set_ylabel("z, m")
 
