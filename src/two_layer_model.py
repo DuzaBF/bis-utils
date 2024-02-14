@@ -1,17 +1,19 @@
 import mpmath
 import numpy as np
-import matplotlib.pyplot as plt
-
-mpmath.dps = 15
-mpmath.pretty = True
+import os
 
 
 class TwoLayerModel:
 
-    def __init__(self, sigma_1, sigma_2, d_1) -> None:
+    def __init__(self, sigma_1, sigma_2, d_1, name="two-layer-model") -> None:
         self.sigma_1 = sigma_1
         self.sigma_2 = sigma_2
         self.d_1 = d_1
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
 
     @property
     def sigma_1(self):
@@ -87,7 +89,7 @@ class TwoLayerModel:
 
 if __name__ == "__main__":
     print("Two Layer Model")
-    a = TwoLayerModel(1, 4, 0.2)
+    two_layer_model = TwoLayerModel(1, 4, 0.2)
     r_coords = np.linspace(-1, 1, 51, dtype=np.float64)
     z_coords = np.linspace(0, 1, 50, dtype=np.float64)
     I = 1
@@ -101,9 +103,9 @@ if __name__ == "__main__":
     ez = []
     for zz in z_coords:
         for rr in r_coords:
-            line.append(a.field_potential(I, rr, zz))
+            line.append(two_layer_model.field_potential(I, rr, zz))
             # line.append(rr+zz)
-            value = a.field_strength(I, rr, zz)
+            value = two_layer_model.field_strength(I, rr, zz)
             line_er.append(value[0])
             line_ez.append(value[1])
         v.append(line)
@@ -114,40 +116,16 @@ if __name__ == "__main__":
         line_ez = []
 
     v = np.array(v, np.float64)
-    v = np.clip(v, -0.5, 0.5)
 
     er = np.array(er, np.float64)
     ez = np.array(ez, np.float64)
-    norm = np.sqrt(np.add(np.power(er, 2), np.power(ez, 2)))
-    er = er / norm
-    ez = ez / norm
 
-    figure = plt.figure()
 
-    ax = figure.add_subplot()
-    ax.invert_yaxis()
-    ax.set_title(r"Electric field for two-layer model for I={} A, $\sigma_1$={} Sm/m, $\sigma_2$={} Sm/m, $d_1$={} m".format(I, a.sigma_1, a.sigma_2, a.d_1))
-    ax.set_xlabel("r, m")
-    ax.set_ylabel("z, m")
-
-    cset_v = ax.contourf(r, z, v)
-    cbi_v = figure.colorbar(cset_v, orientation='horizontal', shrink=0.8)
-    cbi_v.set_label('Potential, V')
-    brd = ax.plot(r_coords, a.d_1 * np.ones(r_coords.shape), color="black")
-
-    n = 4
-    q_e = ax.quiver(r[1::n, 1::n], z[1::n, 1::n],
-                    er[1::n, 1::n], -ez[1::n, 1::n], norm[1::n, 1::n], pivot="mid", cmap="gist_gray",
-                    units="xy",
-                    width=0.008,
-                    headwidth=2,
-                    headlength=3,
-                    headaxislength=3,
-                    scale_units="xy",
-                    scale=10
-                    )
-    q_e.set_clim(0, 2)
-    cbi_e = figure.colorbar(q_e, orientation='horizontal', shrink=0.8)
-    cbi_e.set_label('Strength, V/m')
-
-    plt.show()
+    os.makedirs("./computed/{}".format(two_layer_model.name), exist_ok=True)
+    np.savetxt("./computed/{}/potential.csv".format(two_layer_model.name), v, delimiter=",")
+    np.savetxt("./computed/{}/strength_r.csv".format(two_layer_model.name), er, delimiter=",")
+    np.savetxt("./computed/{}/strength_z.csv".format(two_layer_model.name), ez, delimiter=",")
+    parameters = np.asarray([two_layer_model.sigma_1, two_layer_model.sigma_2, two_layer_model.d_1, I])
+    np.savetxt("./computed/{}/parameters.csv".format(two_layer_model.name), parameters, delimiter=",")
+    np.savetxt("./computed/{}/r.csv".format(two_layer_model.name), r, delimiter=",")
+    np.savetxt("./computed/{}/z.csv".format(two_layer_model.name), z, delimiter=",")

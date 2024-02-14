@@ -1,12 +1,11 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib
-
+import os
 
 class OneLayerModel:
 
-    def __init__(self, sigma) -> None:
+    def __init__(self, sigma, name="one-layer-model") -> None:
         self.sigma = sigma
+        self._name = name
 
     @property
     def sigma(self):
@@ -15,6 +14,10 @@ class OneLayerModel:
     @sigma.setter
     def sigma(self, sigma):
         self._sigma = sigma
+
+    @property
+    def name(self):
+        return self._name
 
     def one_over_root(self, r, z):
         return 1/(np.sqrt(np.power(r, 2) + np.power(z, 2)))
@@ -42,48 +45,22 @@ class OneLayerModel:
         mdVdz = q * self.one_over_root_dz(r, z)
         return (mdVdr, mdVdz)
 
-
 if __name__ == "__main__":
     print("One Layer Model")
-    a = OneLayerModel(1)
+    one_layer_model = OneLayerModel(1)
     r_coords = np.linspace(-1, 1, 51, dtype=np.float64)
     z_coords = np.linspace(0, 1, 50, dtype=np.float64)
     I = 1
     r, z = np.meshgrid(r_coords, z_coords)
 
-    v = a.field_potential(I, r, z)
-    v = np.clip(v, 0, 1)
+    v = one_layer_model.field_potential(I, r, z)
+    er, ez = one_layer_model.field_strength(I, r, z)
 
-    er, ez = a.field_strength(I, r, z)
-    norm = np.sqrt(np.add(np.power(er, 2), np.power(ez, 2)))
-    er = er / norm
-    ez = ez / norm
-
-    figure = plt.figure()
-
-    ax = figure.add_subplot()
-    ax.invert_yaxis()
-    ax.set_title(r"Electric field for one-layer model for I={} A, $\sigma$={} Sm/m".format(I, a.sigma))
-    ax.set_xlabel("r, m")
-    ax.set_ylabel("z, m")
-
-    cset_v = ax.contourf(r, z, v)
-    cbi_v = figure.colorbar(cset_v, orientation='horizontal', shrink=0.8)
-    cbi_v.set_label('Potential, V')
-
-    n = 8
-    q_e = ax.quiver(r[1::n, 1::n], z[1::n, 1::n],
-                    er[1::n, 1::n], -ez[1::n, 1::n], norm[1::n, 1::n], pivot="mid", cmap="gist_gray",
-                    units="xy",
-                    width=0.008,
-                    headwidth=2,
-                    headlength=3,
-                    headaxislength=3,
-                    scale_units="xy",
-                    scale=10
-                    )
-    q_e.set_clim(0, 2)
-    cbi_e = figure.colorbar(q_e, orientation='horizontal', shrink=0.8)
-    cbi_e.set_label('Strength, V/m')
-
-    plt.show()
+    os.makedirs("./computed/{}".format(one_layer_model.name), exist_ok=True)
+    np.savetxt("./computed/{}/potential.csv".format(one_layer_model.name), v, delimiter=",")
+    np.savetxt("./computed/{}/strength_r.csv".format(one_layer_model.name), er, delimiter=",")
+    np.savetxt("./computed/{}/strength_z.csv".format(one_layer_model.name), ez, delimiter=",")
+    parameters = np.asarray([one_layer_model.sigma, I])
+    np.savetxt("./computed/{}/parameters.csv".format(one_layer_model.name), parameters, delimiter=",")
+    np.savetxt("./computed/{}/r.csv".format(one_layer_model.name), r, delimiter=",")
+    np.savetxt("./computed/{}/z.csv".format(one_layer_model.name), z, delimiter=",")
