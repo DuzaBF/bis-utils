@@ -74,6 +74,14 @@ class ElectrodeFields:
 
         return ElectrodeFields(v_cut, er_cut, ez_cut, r_cut, z_cut)
 
+    def dot_product(self, other):
+        if type(other) != type(self):
+            raise TypeError("Can only multiply two ElectrodeFields")
+        if (self.r_step != other.r_step) or (self.z_step != other.z_step):
+            raise ValueError("Fields must be on the same grid")
+
+        return self.er * other.er + self.ez * other.ez
+
 
 def read_model_fields(model):
     v = np.genfromtxt(
@@ -94,14 +102,14 @@ def read_model_fields(model):
     return v, er, ez, r, z, parameters
 
 
-def plot_potential_field(figure: plt.Figure, ax: plt.Axes, r, z, v, v_min=-2, v_max=2):
+def plot_scalar_field(figure: plt.Figure, ax: plt.Axes, r, z, v, v_min=-2, v_max=2):
     v = np.clip(v, v_min, v_max)
     cset_v = ax.contourf(r, z, v)
     cbi_v = figure.colorbar(cset_v, orientation="horizontal", shrink=0.8)
     cbi_v.set_label("Potential, V")
 
 
-def plot_strength_field(figure: plt.Figure, ax: plt.Axes, r, z, er, ez, n=8):
+def plot_vector_field(figure: plt.Figure, ax: plt.Axes, r, z, er, ez, n=8):
     norm = np.sqrt(np.add(np.power(er, 2), np.power(ez, 2)))
     er = er / norm
     ez = ez / norm
@@ -139,9 +147,9 @@ def plot_one_layer(el: ElectrodeFields, parameters):
     ax.set_xlabel("r, m")
     ax.set_ylabel("z, m")
 
-    plot_potential_field(figure, ax, el.r, el.z, el.v)
+    plot_scalar_field(figure, ax, el.r, el.z, el.v)
 
-    plot_strength_field(figure, ax, el.r, el.z, el.er, el.ez)
+    plot_vector_field(figure, ax, el.r, el.z, el.er, el.ez)
 
 
 def plot_two_layer(el: ElectrodeFields, parameters):
@@ -162,12 +170,11 @@ def plot_two_layer(el: ElectrodeFields, parameters):
     ax.set_xlabel("r, m")
     ax.set_ylabel("z, m")
 
-    plot_potential_field(figure, ax, el.r, el.z, el.v)
+    plot_scalar_field(figure, ax, el.r, el.z, el.v)
 
-    plot_strength_field(figure, ax, el.r, el.z, el.er, el.ez)
+    plot_vector_field(figure, ax, el.r, el.z, el.er, el.ez)
 
-    r_coords = np.linspace(r[0][0], r[0][-1], len(r[0]))
-    brd = ax.plot(r[0], d_1 * np.ones(r_coords.shape), color="black")
+    brd = ax.plot(r[0], d_1 * np.ones(r[0].shape), color="black")
 
 
 def plot_sum_of_two(el_1: ElectrodeFields, el_2: ElectrodeFields, parameters, r_shift):
@@ -190,8 +197,9 @@ def plot_sum_of_two(el_1: ElectrodeFields, el_2: ElectrodeFields, parameters, r_
     ax.set_xlabel("r, m")
     ax.set_ylabel("z, m")
 
-    plot_potential_field(figure, ax, el_sum.r, el_sum.z, el_sum.v)
-    plot_strength_field(figure, ax, el_sum.r, el_sum.z, el_sum.er, el_sum.ez)
+    plot_scalar_field(figure, ax, el_sum.r, el_sum.z, el_sum.v)
+    plot_vector_field(figure, ax, el_sum.r, el_sum.z, el_sum.er, el_sum.ez)
+    brd = ax.plot(el_sum.r[0], d_1 * np.ones(el_sum.r[0].shape), color="black")
 
 
 def plot_sensitivity(
@@ -200,10 +208,28 @@ def plot_sensitivity(
     el_v_3: ElectrodeFields,
     el_v_4: ElectrodeFields,
     parameters,
-    r_shifts
+    r_shifts,
 ):
+    sigma_1 = parameters[0]
+    sigma_2 = parameters[1]
+    d_1 = parameters[2]
+    I = parameters[3]
+
     j1_injected = el_i_1.add(el_i_2, r_shifts[0])
     j2_measured = el_v_3.add(el_v_4, r_shifts[2] - r_shifts[1])
+
+    figure = plt.figure()
+
+    ax = figure.add_subplot()
+    ax.invert_yaxis()
+    ax.set_title(
+        r"Sensitivity field for two-layer model for $\sigma_1$={} Sm/m, $\sigma_2$={} Sm/m, $d_1$={} m and a pair of electrodes with current I={} A and distance between them L = {} m and a pair of measurement electrodes with distance s = {} m".format(
+            sigma_1, sigma_2, d_1, I, r_shifts[0], r_shifts[2] - r_shifts[1]
+        )
+    )
+
+    plot_scalar_field(figure, ax, j1_injected.r, j1_injected.z, j1_injected.dot_product(j2_measured), -3, 10)
+    brd = ax.plot(j1_injected.r[0], d_1 * np.ones(j1_injected.r[0].shape), color="black")
 
 
 if __name__ == "__main__":
@@ -217,5 +243,8 @@ if __name__ == "__main__":
     el_2 = ElectrodeFields(-v, -er, -ez, r, z)
     plot_two_layer(el_1, parameters)
     plot_sum_of_two(el_1, el_2, parameters, 0.7)
+    el_3 = ElectrodeFields(v, er, ez, r, z)
+    el_4 = ElectrodeFields(-v, -er, -ez, r, z)
+    plot_sensitivity(el_1, el_2, el_3, el_4, parameters, [0.1, 0.2, 0.3])
 
     plt.show()
