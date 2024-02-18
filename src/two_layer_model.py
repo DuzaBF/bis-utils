@@ -45,16 +45,19 @@ class TwoLayerModel:
 
     def one_over_root(self, r, z, n):
         a = np.power(r, 2)
-        sz = np.add(z, 2*n*self.d_1)
+        sz = np.add(z, 2 * n * self.d_1)
         b = np.power(sz, 2)
-        return 1/(np.sqrt(a + b))
+        return 1 / (np.sqrt(a + b))
 
     def inf_sum_potential(self, r, z):
-        return mpmath.nsum(lambda n: (self.k_12 ** n) *
-                           (self.one_over_root(r, -1 * z, n) + self.one_over_root(r, z, n)), [1, mpmath.inf])
+        return mpmath.nsum(
+            lambda n: (self.k_12**n)
+            * (self.one_over_root(r, -1 * z, n) + self.one_over_root(r, z, n)),
+            [1, mpmath.inf],
+        )
 
     def field_potential(self, I, r, z):
-        q = I / (2*np.pi * self.sigma_1)
+        q = I / (2 * np.pi * self.sigma_1)
         return q * (self.one_over_root(r, z, 0) + self.inf_sum_potential(r, z))
 
     def field_potential_surface(self, I, r):
@@ -62,36 +65,40 @@ class TwoLayerModel:
 
     def over_root_dr(self, r, z, n):
         a = np.power(r, 2)
-        sz = np.add(z, 2*n*self.d_1)
+        sz = np.add(z, 2 * n * self.d_1)
         b = np.power(sz, 2)
-        return r * (np.power(a + b, -3/2))
+        return r * (np.power(a + b, -3 / 2))
 
     def inf_sum_strength_dr(self, r, z):
-        return mpmath.nsum(lambda n: (self.k_12 ** n) *
-                           (self.over_root_dr(r, -1 * z, n) + self.over_root_dr(r, z, n)), [1, mpmath.inf])
+        return mpmath.nsum(
+            lambda n: (self.k_12**n)
+            * (self.over_root_dr(r, -1 * z, n) + self.over_root_dr(r, z, n)),
+            [1, mpmath.inf],
+        )
 
     def over_root_dz(self, r, z, n):
-        sz = np.add(z, 2*n*self.d_1)
-        return sz / (np.power(np.power(r, 2) + np.power(sz, 2), 3/2))
+        sz = np.add(z, 2 * n * self.d_1)
+        return sz / (np.power(np.power(r, 2) + np.power(sz, 2), 3 / 2))
 
     def inf_sum_strength_dz(self, r, z):
-        return mpmath.nsum(lambda n: (self.k_12 ** n) *
-                           (-1 * self.over_root_dz(r, -1 * z, n) + self.over_root_dz(r, z, n)), [1, mpmath.inf])
+        return mpmath.nsum(
+            lambda n: (self.k_12**n)
+            * (-1 * self.over_root_dz(r, -1 * z, n) + self.over_root_dz(r, z, n)),
+            [1, mpmath.inf],
+        )
 
     def field_strength(self, I, r, z):
-        q = I / (2*np.pi * self.sigma_1)
-        mdVdr = q * (self.over_root_dr(r, z, 0) +
-                     self.inf_sum_strength_dr(r, z))
-        mdVdz = q * (self.over_root_dz(r, z, 0) +
-                     self.inf_sum_strength_dz(r, z))
+        q = I / (2 * np.pi * self.sigma_1)
+        mdVdr = q * (self.over_root_dr(r, z, 0) + self.inf_sum_strength_dr(r, z))
+        mdVdz = q * (self.over_root_dz(r, z, 0) + self.inf_sum_strength_dz(r, z))
         return (mdVdr, mdVdz)
 
 
 if __name__ == "__main__":
     print("Two Layer Model")
     two_layer_model = TwoLayerModel(1, 4, 0.2)
-    r_coords = np.linspace(-1, 1, 51, dtype=np.float64)
-    z_coords = np.linspace(0, 1, 50, dtype=np.float64)
+    r_coords = np.linspace(-1, 1, 101, dtype=np.float64)
+    z_coords = np.linspace(0, 1, 100, dtype=np.float64)
     I = 1
     r, z = np.meshgrid(r_coords, z_coords)
 
@@ -120,12 +127,23 @@ if __name__ == "__main__":
     er = np.array(er, np.float64)
     ez = np.array(ez, np.float64)
 
-
     os.makedirs("./computed/{}".format(two_layer_model.name), exist_ok=True)
-    np.savetxt("./computed/{}/potential.csv".format(two_layer_model.name), v, delimiter=",")
-    np.savetxt("./computed/{}/strength_r.csv".format(two_layer_model.name), er, delimiter=",")
-    np.savetxt("./computed/{}/strength_z.csv".format(two_layer_model.name), ez, delimiter=",")
-    parameters = np.asarray([two_layer_model.sigma_1, two_layer_model.sigma_2, two_layer_model.d_1, I])
-    np.savetxt("./computed/{}/parameters.csv".format(two_layer_model.name), parameters, delimiter=",")
+    np.savetxt(
+        "./computed/{}/potential.csv".format(two_layer_model.name), v, delimiter=","
+    )
+    np.savetxt(
+        "./computed/{}/strength_r.csv".format(two_layer_model.name), er, delimiter=","
+    )
+    np.savetxt(
+        "./computed/{}/strength_z.csv".format(two_layer_model.name), ez, delimiter=","
+    )
+    parameters = np.asarray(
+        [two_layer_model.sigma_1, two_layer_model.sigma_2, two_layer_model.d_1, I]
+    )
+    np.savetxt(
+        "./computed/{}/parameters.csv".format(two_layer_model.name),
+        parameters,
+        delimiter=",",
+    )
     np.savetxt("./computed/{}/r.csv".format(two_layer_model.name), r, delimiter=",")
     np.savetxt("./computed/{}/z.csv".format(two_layer_model.name), z, delimiter=",")
