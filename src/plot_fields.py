@@ -2,6 +2,79 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+class ElectrodeFields:
+
+    def __init__(self, v, er, ez, r, z):
+        v = np.array(v, np.float64)
+        er = np.array(er, np.float64)
+        ez = np.array(ez, np.float64)
+        self.v = v
+        self.er = er
+        self.ez = ez
+        self.r = r
+        self.z = z
+
+    @property
+    def r_step(self):
+        return self.r[0][1] - self.r[0][0]
+
+    @property
+    def z_step(self):
+        return self.z[0][1] - self.z[0][0]
+
+    @property
+    def r_coords(self):
+        return self.r[0]
+
+    @property
+    def z_coords(self):
+        return self.z[:, 0]
+
+    @staticmethod
+    def extend_field_right(field, r_shift_index):
+        return np.concatenate([field, np.zeros((len(field), r_shift_index))], 1)
+
+    @staticmethod
+    def extend_field_left(field, r_shift_index):
+        return np.concatenate([np.zeros((len(field), r_shift_index)), field], 1)
+
+    @staticmethod
+    def sum_shifted_fields(field_1, field_2, r_shift_index):
+        return ElectrodeFields.extend_field_right(
+            field_1, r_shift_index
+        ) + ElectrodeFields.extend_field_left(field_2, r_shift_index)
+
+    def add(self, other, r_shift):
+        if type(other) != type(self):
+            raise TypeError("Can only add two ElectrodeFields")
+        if (self.r_step != other.r_step) or (self.z_step != other.z_step):
+            raise ValueError("Fields must be on the same grid")
+        if r_shift < 0:
+            raise ValueError("Use non-negative distance between sources")
+
+        r_shift_index = int(np.ceil(r_shift // self.r_step))
+
+        r_right = np.linspace(
+            self.r_coords[-1] + self.r_step,
+            self.r_coords[-1] + (r_shift_index + 1) * self.r_step,
+            r_shift_index,
+        )
+        r_extended = np.concatenate([self.r_coords, r_right])
+        r_ext, z_ext = np.meshgrid(r_extended, self.z_coords)
+
+        v_sum = self.sum_shifted_fields(self.v, other.v, r_shift_index)
+        er_sum = self.sum_shifted_fields(self.er, other.er, r_shift_index)
+        ez_sum = self.sum_shifted_fields(self.ez, other.ez, r_shift_index)
+
+        r_cut = r_ext[:, r_shift_index:-r_shift_index]
+        z_cut = z_ext[:, r_shift_index:-r_shift_index]
+        v_cut = v_sum[:, r_shift_index:-r_shift_index]
+        er_cut = er_sum[:, r_shift_index:-r_shift_index]
+        ez_cut = ez_sum[:, r_shift_index:-r_shift_index]
+
+        return ElectrodeFields(v_cut, er_cut, ez_cut, r_cut, z_cut)
+
+
 def read_model_fields(model):
     v = np.genfromtxt(
         "./computed/{}/potential.csv".format(model), delimiter=",", usemask=True
@@ -21,13 +94,14 @@ def read_model_fields(model):
     return v, er, ez, r, z, parameters
 
 
-def plot_potential_field(figure, ax, r, z, v):
+def plot_potential_field(figure: plt.Figure, ax: plt.Axes, r, z, v, v_min=-2, v_max=2):
+    v = np.clip(v, v_min, v_max)
     cset_v = ax.contourf(r, z, v)
     cbi_v = figure.colorbar(cset_v, orientation="horizontal", shrink=0.8)
     cbi_v.set_label("Potential, V")
 
 
-def plot_strength_field(figure, ax, r, z, er, ez, n=8):
+def plot_strength_field(figure: plt.Figure, ax: plt.Axes, r, z, er, ez, n=8):
     norm = np.sqrt(np.add(np.power(er, 2), np.power(ez, 2)))
     er = er / norm
     ez = ez / norm
@@ -52,9 +126,7 @@ def plot_strength_field(figure, ax, r, z, er, ez, n=8):
     cbi_e.set_label("Strength, V/m")
 
 
-def plot_one_layer(v, er, ez, r, z, parameters):
-    v = np.clip(v, -1, 1)
-
+def plot_one_layer(el: ElectrodeFields, parameters):
     figure = plt.figure()
 
     ax = figure.add_subplot()
@@ -67,21 +139,16 @@ def plot_one_layer(v, er, ez, r, z, parameters):
     ax.set_xlabel("r, m")
     ax.set_ylabel("z, m")
 
-    plot_potential_field(figure, ax, r, z, v)
+    plot_potential_field(figure, ax, el.r, el.z, el.v)
 
-    plot_strength_field(figure, ax, r, z, er, ez)
+    plot_strength_field(figure, ax, el.r, el.z, el.er, el.ez)
 
 
-def plot_two_layer(v, er, ez, r, z, parameters):
+def plot_two_layer(el: ElectrodeFields, parameters):
     sigma_1 = parameters[0]
     sigma_2 = parameters[1]
     d_1 = parameters[2]
     I = parameters[3]
-
-    v = np.clip(v, -0.5, 0.5)
-
-    er = np.array(er, np.float64)
-    ez = np.array(ez, np.float64)
 
     figure = plt.figure()
 
@@ -95,53 +162,21 @@ def plot_two_layer(v, er, ez, r, z, parameters):
     ax.set_xlabel("r, m")
     ax.set_ylabel("z, m")
 
-    plot_potential_field(figure, ax, r, z, v)
+    plot_potential_field(figure, ax, el.r, el.z, el.v)
 
-    plot_strength_field(figure, ax, r, z, er, ez)
+    plot_strength_field(figure, ax, el.r, el.z, el.er, el.ez)
 
     r_coords = np.linspace(r[0][0], r[0][-1], len(r[0]))
-    brd = ax.plot(r_coords, d_1 * np.ones(r_coords.shape), color="black")
+    brd = ax.plot(r[0], d_1 * np.ones(r_coords.shape), color="black")
 
 
-def sum_shifted_fileds(field, shift_index):
-    return np.concatenate(
-        [field, np.zeros((len(field), shift_index))], 1
-    ) + np.concatenate([np.zeros((len(field), shift_index)), -field], 1)
-
-
-def plot_sum_of_two(v, er, ez, r, z, parameters, r_shift):
+def plot_sum_of_two(el_1: ElectrodeFields, el_2: ElectrodeFields, parameters, r_shift):
     sigma_1 = parameters[0]
     sigma_2 = parameters[1]
     d_1 = parameters[2]
     I = parameters[3]
 
-    v = np.clip(v, -1, 1)
-
-    er = np.array(er, np.float64)
-    ez = np.array(ez, np.float64)
-
-    r_coords = r[0]
-    z_coords = z[:, 0]
-
-    r_step = r_coords[1] - r_coords[0]
-    r_shift_index = int(np.ceil(r_shift // r_step))
-    r_right = np.linspace(
-        r_coords[-1] + r_step,
-        r_coords[-1] + (r_shift_index + 1) * r_step,
-        r_shift_index,
-    )
-    r_extended = np.concatenate([r_coords, r_right])
-    r_ext, z_ext = np.meshgrid(r_extended, z_coords)
-
-    left_lim = r_extended[0] + r_step * r_shift_index
-    rigth_lim = r_extended[-1] - r_step * r_shift_index
-    print(r_coords)
-    print(left_lim)
-    print(rigth_lim)
-
-    v_sum = sum_shifted_fileds(v, r_shift_index)
-    er_sum = sum_shifted_fileds(er, r_shift_index)
-    ez_sum = sum_shifted_fileds(ez, r_shift_index)
+    el_sum = el_1.add(el_2, r_shift)
 
     figure = plt.figure()
 
@@ -155,20 +190,32 @@ def plot_sum_of_two(v, er, ez, r, z, parameters, r_shift):
     ax.set_xlabel("r, m")
     ax.set_ylabel("z, m")
 
-    plot_potential_field(figure, ax, r_ext, z_ext, v_sum)
+    plot_potential_field(figure, ax, el_sum.r, el_sum.z, el_sum.v)
+    plot_strength_field(figure, ax, el_sum.r, el_sum.z, el_sum.er, el_sum.ez)
 
-    plot_strength_field(figure, ax, r_ext, z_ext, er_sum, ez_sum)
 
-    ax.set_xlim(left_lim, rigth_lim)
+def plot_sensitivity(
+    el_i_1: ElectrodeFields,
+    el_i_2: ElectrodeFields,
+    el_v_3: ElectrodeFields,
+    el_v_4: ElectrodeFields,
+    parameters,
+    r_shifts
+):
+    j1_injected = el_i_1.add(el_i_2, r_shifts[0])
+    j2_measured = el_v_3.add(el_v_4, r_shifts[2] - r_shifts[1])
 
 
 if __name__ == "__main__":
     model = "one-layer-model"
     v, er, ez, r, z, parameters = read_model_fields(model)
-    plot_one_layer(v, er, ez, r, z, parameters)
+    el_0 = ElectrodeFields(v, er, ez, r, z)
+    plot_one_layer(el_0, parameters)
     model = "two-layer-model"
     v, er, ez, r, z, parameters = read_model_fields(model)
-    plot_two_layer(v, er, ez, r, z, parameters)
-    plot_sum_of_two(v, er, ez, r, z, parameters, 0.7)
+    el_1 = ElectrodeFields(v, er, ez, r, z)
+    el_2 = ElectrodeFields(-v, -er, -ez, r, z)
+    plot_two_layer(el_1, parameters)
+    plot_sum_of_two(el_1, el_2, parameters, 0.7)
 
     plt.show()
