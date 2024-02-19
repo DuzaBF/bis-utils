@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 class ElectrodeFields:
 
-    def __init__(self, v, er, ez, r, z):
+    def __init__(self, v, er, ez, r, z, r_shift=0):
         v = np.array(v, np.float64)
         er = np.array(er, np.float64)
         ez = np.array(ez, np.float64)
@@ -13,6 +13,7 @@ class ElectrodeFields:
         self.ez = ez
         self.r = r
         self.z = z
+        self.r_shift = r_shift
 
     @property
     def r_step(self):
@@ -32,11 +33,15 @@ class ElectrodeFields:
 
     @staticmethod
     def extend_field_right(field, r_shift_index):
-        return np.concatenate([field, np.zeros((len(field), r_shift_index))], 1)
+        right = np.empty((len(field), r_shift_index))
+        right.fill(np.nan)
+        return np.concatenate([field, right], 1)
 
     @staticmethod
     def extend_field_left(field, r_shift_index):
-        return np.concatenate([np.zeros((len(field), r_shift_index)), field], 1)
+        left = np.empty((len(field), r_shift_index))
+        left.fill(np.nan)
+        return np.concatenate([left, field], 1)
 
     @staticmethod
     def sum_shifted_fields(field_1, field_2, r_shift_index):
@@ -44,43 +49,73 @@ class ElectrodeFields:
             field_1, r_shift_index
         ) + ElectrodeFields.extend_field_left(field_2, r_shift_index)
 
-    def add(self, other, r_shift):
+    def __add__(self, other):
         if type(other) != type(self):
-            raise TypeError("Can only add two ElectrodeFields")
+            raise TypeError("Can only add two {}".format(type(self).__name__))
         if (self.r_step != other.r_step) or (self.z_step != other.z_step):
             raise ValueError("Fields must be on the same grid")
-        if r_shift < 0:
-            raise ValueError("Use non-negative distance between sources")
 
-        r_shift_index = int(np.ceil(r_shift // self.r_step))
+        if self.r_shift > other.r_shift:
+            return other + self
+
+        r_shift_index = int(
+            np.ceil(abs(self.r_shift - other.r_shift) // self.r_step))
 
         r_right = np.linspace(
             self.r_coords[-1] + self.r_step,
             self.r_coords[-1] + (r_shift_index + 1) * self.r_step,
             r_shift_index,
         )
+
+        print(self.r_shift)
+        print(other.r_shift)
+        print(r_shift_index)
+
         r_extended = np.concatenate([self.r_coords, r_right])
         r_ext, z_ext = np.meshgrid(r_extended, self.z_coords)
 
-        v_sum = self.sum_shifted_fields(self.v, other.v, r_shift_index)
-        er_sum = self.sum_shifted_fields(self.er, other.er, r_shift_index)
-        ez_sum = self.sum_shifted_fields(self.ez, other.ez, r_shift_index)
+        v_sum = ElectrodeFields.sum_shifted_fields(
+            self.v, other.v, r_shift_index)
+        er_sum = ElectrodeFields.sum_shifted_fields(
+            self.er, other.er, r_shift_index)
+        ez_sum = ElectrodeFields.sum_shifted_fields(
+            self.ez, other.ez, r_shift_index)
 
-        r_cut = r_ext[:, r_shift_index:-r_shift_index]
-        z_cut = z_ext[:, r_shift_index:-r_shift_index]
-        v_cut = v_sum[:, r_shift_index:-r_shift_index]
-        er_cut = er_sum[:, r_shift_index:-r_shift_index]
-        ez_cut = ez_sum[:, r_shift_index:-r_shift_index]
+        r_cut = r_ext[:,   :-r_shift_index]
+        z_cut = z_ext[:,   :-r_shift_index]
+        v_cut = v_sum[:,   :-r_shift_index]
+        er_cut = er_sum[:, :-r_shift_index]
+        ez_cut = ez_sum[:, :-r_shift_index]
 
-        return ElectrodeFields(v_cut, er_cut, ez_cut, r_cut, z_cut)
+        return ElectrodeFields(v_cut, er_cut, ez_cut, r_cut, z_cut, -(self.r_shift + other.r_shift) / 2)
 
     def dot_product(self, other):
         if type(other) != type(self):
-            raise TypeError("Can only multiply two ElectrodeFields")
+            raise TypeError(
+                "Can only multiply two {}".format(type(self).__name__))
         if (self.r_step != other.r_step) or (self.z_step != other.z_step):
             raise ValueError("Fields must be on the same grid")
 
-        return self.er * other.er + self.ez * other.ez
+        if self.r_shift > other.r_shift:
+            return other.dot_product(self)
+
+        r_shift_index = int(
+            np.ceil(abs(self.r_shift - other.r_shift) // self.r_step))
+
+        er_right = ElectrodeFields.extend_field_right(self.er, r_shift_index)
+        er_left = ElectrodeFields.extend_field_left(other.er, r_shift_index)
+
+        ez_right = ElectrodeFields.extend_field_right(self.ez, r_shift_index)
+        ez_left = ElectrodeFields.extend_field_left(other.ez, r_shift_index)
+
+        return er_right * er_left + ez_right * ez_left
+
+    def invert(self):
+        self.v = -self.v
+        self.er = -self.er
+        self.ez = -self.ez
+        self.r = -self.r
+        self.z = -self.z
 
 
 def read_model_fields(model):
@@ -96,20 +131,22 @@ def read_model_fields(model):
     parameters = np.genfromtxt(
         "./computed/{}/parameters.csv".format(model), delimiter=",", usemask=True
     )
-    r = np.genfromtxt("./computed/{}/r.csv".format(model), delimiter=",", usemask=True)
-    z = np.genfromtxt("./computed/{}/z.csv".format(model), delimiter=",", usemask=True)
+    r = np.genfromtxt("./computed/{}/r.csv".format(model),
+                      delimiter=",", usemask=True)
+    z = np.genfromtxt("./computed/{}/z.csv".format(model),
+                      delimiter=",", usemask=True)
 
     return v, er, ez, r, z, parameters
 
 
-def plot_scalar_field(figure: plt.Figure, ax: plt.Axes, r, z, v, v_min=-2, v_max=2):
+def plot_scalar_field(figure: plt.Figure, ax: plt.Axes, r, z, v, v_min=-2, v_max=2, label="Potential, V"):
     v = np.clip(v, v_min, v_max)
     cset_v = ax.contourf(r, z, v)
     cbi_v = figure.colorbar(cset_v, orientation="horizontal", shrink=0.8)
-    cbi_v.set_label("Potential, V")
+    cbi_v.set_label(label)
 
 
-def plot_vector_field(figure: plt.Figure, ax: plt.Axes, r, z, er, ez, n=8):
+def plot_vector_field(figure: plt.Figure, ax: plt.Axes, r, z, er, ez, n=4, label="Strength, V/m"):
     norm = np.sqrt(np.add(np.power(er, 2), np.power(ez, 2)))
     er = er / norm
     ez = ez / norm
@@ -131,7 +168,7 @@ def plot_vector_field(figure: plt.Figure, ax: plt.Axes, r, z, er, ez, n=8):
     )
     q_e.set_clim(0, 2)
     cbi_e = figure.colorbar(q_e, orientation="horizontal", shrink=0.8)
-    cbi_e.set_label("Strength, V/m")
+    cbi_e.set_label(label)
 
 
 def plot_one_layer(el: ElectrodeFields, parameters):
@@ -148,8 +185,8 @@ def plot_one_layer(el: ElectrodeFields, parameters):
     ax.set_ylabel("z, m")
 
     plot_scalar_field(figure, ax, el.r, el.z, el.v)
-
     plot_vector_field(figure, ax, el.r, el.z, el.er, el.ez)
+    ax.set_xlim(el.r[0][0], el.r[0][-1])
 
 
 def plot_two_layer(el: ElectrodeFields, parameters):
@@ -170,53 +207,34 @@ def plot_two_layer(el: ElectrodeFields, parameters):
     ax.set_xlabel("r, m")
     ax.set_ylabel("z, m")
 
-    plot_scalar_field(figure, ax, el.r, el.z, el.v)
+    norm = np.sqrt(np.add(np.power(el.er, 2), np.power(el.ez, 2)))
+    plot_scalar_field(figure, ax, el.r + el.r_shift, el.z, norm)
 
-    plot_vector_field(figure, ax, el.r, el.z, el.er, el.ez)
-
+    # plot_scalar_field(figure, ax, el.r, el.z, el.v)
+    # plot_vector_field(figure, ax, el.r, el.z, el.er, el.ez)
     brd = ax.plot(r[0], d_1 * np.ones(r[0].shape), color="black")
-
-
-def plot_sum_of_two(el_1: ElectrodeFields, el_2: ElectrodeFields, parameters, r_shift):
-    sigma_1 = parameters[0]
-    sigma_2 = parameters[1]
-    d_1 = parameters[2]
-    I = parameters[3]
-
-    el_sum = el_1.add(el_2, r_shift)
-
-    figure = plt.figure()
-
-    ax = figure.add_subplot()
-    ax.invert_yaxis()
-    ax.set_title(
-        r"Electric field for two-layer model for $\sigma_1$={} Sm/m, $\sigma_2$={} Sm/m, $d_1$={} m and a pair of electrodes with current I={} A and distance between them l = {} m".format(
-            sigma_1, sigma_2, d_1, I, r_shift
-        )
-    )
-    ax.set_xlabel("r, m")
-    ax.set_ylabel("z, m")
-
-    plot_scalar_field(figure, ax, el_sum.r, el_sum.z, el_sum.v)
-    plot_vector_field(figure, ax, el_sum.r, el_sum.z, el_sum.er, el_sum.ez)
-    brd = ax.plot(el_sum.r[0], d_1 * np.ones(el_sum.r[0].shape), color="black")
+    ax.set_xlim(el.r[0][0], el.r[0][-1])
 
 
 def plot_sensitivity(
-    el_i_1: ElectrodeFields,
-    el_i_2: ElectrodeFields,
-    el_v_3: ElectrodeFields,
-    el_v_4: ElectrodeFields,
+    el_A: ElectrodeFields,
+    el_B: ElectrodeFields,
+    el_M: ElectrodeFields,
+    el_N: ElectrodeFields,
     parameters,
-    r_shifts,
 ):
     sigma_1 = parameters[0]
     sigma_2 = parameters[1]
     d_1 = parameters[2]
     I = parameters[3]
 
-    j1_injected = el_i_1.add(el_i_2, r_shifts[0])
-    j2_measured = el_v_3.add(el_v_4, r_shifts[2] - r_shifts[1])
+    j1_injected = el_A + el_B
+    j2_measured = el_M + el_N
+
+    plot_two_layer(j1_injected, parameters)
+    plot_two_layer(j2_measured, parameters)
+
+    sensitivity = j1_injected.dot_product(j2_measured)
 
     figure = plt.figure()
 
@@ -224,27 +242,45 @@ def plot_sensitivity(
     ax.invert_yaxis()
     ax.set_title(
         r"Sensitivity field for two-layer model for $\sigma_1$={} Sm/m, $\sigma_2$={} Sm/m, $d_1$={} m and a pair of electrodes with current I={} A and distance between them L = {} m and a pair of measurement electrodes with distance s = {} m".format(
-            sigma_1, sigma_2, d_1, I, r_shifts[0], r_shifts[2] - r_shifts[1]
+            sigma_1, sigma_2, d_1, I, el_B.r_shift -
+            el_A.r_shift, el_M.r_shift - el_N.r_shift
         )
     )
 
-    plot_scalar_field(figure, ax, j1_injected.r, j1_injected.z, j1_injected.dot_product(j2_measured), -3, 10)
-    brd = ax.plot(j1_injected.r[0], d_1 * np.ones(j1_injected.r[0].shape), color="black")
+    plot_scalar_field(figure, ax, el_A.r, el_A.z,
+                      sensitivity, -10, 10, "Sensitivity")
+    brd = ax.plot(el_A.r[0], d_1 *
+                  np.ones(el_A.r[0].shape), color="black")
+    ax.set_xlim(el_A.r[0][0], el_A.r[0][-1])
+
+
+class TetrapolarSystem:
+
+    def __init__(self, v, er, ez, r, z, I, x: list):
+        '''
+           A   M  N    B
+        ---|---|--|----|---
+
+        -> x
+        '''
+        self.el_A = ElectrodeFields(v, er, ez, r, z, x[0])
+        self.el_M = ElectrodeFields(v, er, ez, r, z, x[1])
+        self.el_N = ElectrodeFields(v, er, ez, r, z, x[2])
+        self.el_B = ElectrodeFields(v, er, ez, r, z, x[3])
 
 
 if __name__ == "__main__":
-    model = "one-layer-model"
-    v, er, ez, r, z, parameters = read_model_fields(model)
-    el_0 = ElectrodeFields(v, er, ez, r, z)
-    plot_one_layer(el_0, parameters)
     model = "two-layer-model"
     v, er, ez, r, z, parameters = read_model_fields(model)
-    el_1 = ElectrodeFields(v, er, ez, r, z)
-    el_2 = ElectrodeFields(-v, -er, -ez, r, z)
-    plot_two_layer(el_1, parameters)
-    plot_sum_of_two(el_1, el_2, parameters, 0.7)
-    el_3 = ElectrodeFields(v, er, ez, r, z)
-    el_4 = ElectrodeFields(-v, -er, -ez, r, z)
-    plot_sensitivity(el_1, el_2, el_3, el_4, parameters, [0.1, 0.2, 0.3])
+
+    el_A = ElectrodeFields(v, er, ez, r, z, -0.2)
+    el_B = ElectrodeFields(-v, -er, -ez, r, z, 0.2)
+    el_M = ElectrodeFields(v, er, ez, r, z, -0.1)
+    el_N = ElectrodeFields(-v, -er, -ez, r, z, 0.1)
+
+    plot_sensitivity(el_A,
+                     el_B,
+                     el_M,
+                     el_N, parameters)
 
     plt.show()
