@@ -301,24 +301,8 @@ def plot_sensitivity(
     plot_layer_model(sensitivity, parameters, v_min=-2, v_max=2,
                      title="Sensitivity field")
 
-
-class TetrapolarSystem:
-
-    def __init__(self, v, er, ez, r, z, I, x: list):
-        '''
-           A   M  N    B
-        ---|---|--|----|---
-
-        -> x
-        '''
-        self.el_A = ElectrodeFields(v, er, ez, r, z, x[0])
-        self.el_M = ElectrodeFields(v, er, ez, r, z, x[1])
-        self.el_N = ElectrodeFields(v, er, ez, r, z, x[2])
-        self.el_B = ElectrodeFields(v, er, ez, r, z, x[3])
-
-
 if __name__ == "__main__":
-    model = "one-layer-model"
+    model = "two-layer-model"
     v, er, ez, r, z, parameters = read_model_fields(model)
 
     el_A = ElectrodeFields(v, er, ez, r, z, -0.2, "el_A")

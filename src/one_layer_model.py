@@ -46,6 +46,8 @@ class OneLayerModel:
         mdVdz = q * self.one_over_root_dz(r, z)
         return (mdVdr, mdVdz)
 
+    def geom_coef(self, r, z):
+        return self.one_over_root(r, z)
 
 if __name__ == "__main__":
     print("One Layer Model")
