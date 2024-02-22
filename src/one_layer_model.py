@@ -68,11 +68,10 @@ if __name__ == "__main__":
     np.savetxt(
         "./computed/{}/strength_z.csv".format(one_layer_model.name), ez, delimiter=","
     )
-    parameters = np.asarray([one_layer_model.sigma, I])
-    np.savetxt(
-        "./computed/{}/parameters.csv".format(one_layer_model.name),
-        parameters,
-        delimiter=",",
-    )
-    np.savetxt("./computed/{}/r.csv".format(one_layer_model.name), r, delimiter=",")
-    np.savetxt("./computed/{}/z.csv".format(one_layer_model.name), z, delimiter=",")
+    parameters = {"sigma": one_layer_model.sigma, "I": I}
+    np.save("./computed/{}/parameters.npy".format(one_layer_model.name), parameters)
+
+    np.savetxt("./computed/{}/r.csv".format(one_layer_model.name),
+               r, delimiter=",")
+    np.savetxt("./computed/{}/z.csv".format(one_layer_model.name),
+               z, delimiter=",")

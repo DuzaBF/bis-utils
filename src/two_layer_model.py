@@ -89,8 +89,10 @@ class TwoLayerModel:
 
     def field_strength(self, I, r, z):
         q = I / (2 * np.pi * self.sigma_1)
-        mdVdr = q * (self.over_root_dr(r, z, 0) + self.inf_sum_strength_dr(r, z))
-        mdVdz = q * (self.over_root_dz(r, z, 0) + self.inf_sum_strength_dz(r, z))
+        mdVdr = q * (self.over_root_dr(r, z, 0) +
+                     self.inf_sum_strength_dr(r, z))
+        mdVdz = q * (self.over_root_dz(r, z, 0) +
+                     self.inf_sum_strength_dz(r, z))
         return (mdVdr, mdVdz)
 
 
@@ -140,10 +142,12 @@ if __name__ == "__main__":
     parameters = np.asarray(
         [two_layer_model.sigma_1, two_layer_model.sigma_2, two_layer_model.d_1, I]
     )
-    np.savetxt(
-        "./computed/{}/parameters.csv".format(two_layer_model.name),
-        parameters,
-        delimiter=",",
-    )
-    np.savetxt("./computed/{}/r.csv".format(two_layer_model.name), r, delimiter=",")
-    np.savetxt("./computed/{}/z.csv".format(two_layer_model.name), z, delimiter=",")
+
+    parameters = {"sigma_1": two_layer_model.sigma_1,
+                  "sigma_2": two_layer_model.sigma_1, "d_1": two_layer_model.d_1, "I": I}
+    np.save("./computed/{}/parameters.npy".format(two_layer_model.name), parameters)
+
+    np.savetxt("./computed/{}/r.csv".format(two_layer_model.name),
+               r, delimiter=",")
+    np.savetxt("./computed/{}/z.csv".format(two_layer_model.name),
+               z, delimiter=",")

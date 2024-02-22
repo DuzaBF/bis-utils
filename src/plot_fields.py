@@ -128,9 +128,9 @@ def read_model_fields(model):
     ez = np.genfromtxt(
         "./computed/{}/strength_z.csv".format(model), delimiter=",", usemask=True
     )
-    parameters = np.genfromtxt(
-        "./computed/{}/parameters.csv".format(model), delimiter=",", usemask=True
-    )
+    parameters = np.load(
+        "./computed/{}/parameters.npy".format(model), allow_pickle=True
+    ).item()
     r = np.genfromtxt("./computed/{}/r.csv".format(model),
                       delimiter=",", usemask=True)
     z = np.genfromtxt("./computed/{}/z.csv".format(model),
@@ -171,14 +171,17 @@ def plot_vector_field(figure: plt.Figure, ax: plt.Axes, r, z, er, ez, n=4, label
     cbi_e.set_label(label)
 
 
-def plot_one_layer(el: ElectrodeFields, parameters):
+def plot_one_layer(el: ElectrodeFields, parameters: dict):
+    sigma = parameters.get("sigma")
+    I = parameters.get("I")
+
     figure = plt.figure()
 
     ax = figure.add_subplot()
     ax.invert_yaxis()
     ax.set_title(
         r"Electric field for one-layer model for I={} A, $\sigma$={} Sm/m".format(
-            parameters[0], parameters[1]
+            I, sigma
         )
     )
     ax.set_xlabel("r, m")
@@ -189,11 +192,11 @@ def plot_one_layer(el: ElectrodeFields, parameters):
     ax.set_xlim(el.r[0][0], el.r[0][-1])
 
 
-def plot_two_layer(el: ElectrodeFields, parameters):
-    sigma_1 = parameters[0]
-    sigma_2 = parameters[1]
-    d_1 = parameters[2]
-    I = parameters[3]
+def plot_two_layer(el: ElectrodeFields, parameters: dict):
+    sigma_1 = parameters.get("sigma_1")
+    sigma_2 = parameters.get("sigma_2")
+    d_1 = parameters.get("d_1")
+    I = parameters.get("I")
 
     figure = plt.figure()
 
@@ -221,12 +224,12 @@ def plot_sensitivity(
     el_B: ElectrodeFields,
     el_M: ElectrodeFields,
     el_N: ElectrodeFields,
-    parameters,
+    parameters: dict,
 ):
-    sigma_1 = parameters[0]
-    sigma_2 = parameters[1]
-    d_1 = parameters[2]
-    I = parameters[3]
+    sigma_1 = parameters.get("sigma_1")
+    sigma_2 = parameters.get("sigma_2")
+    d_1 = parameters.get("d_1")
+    I = parameters.get("I")
 
     j1_injected = el_A + el_B
     j2_measured = el_M + el_N
