@@ -99,8 +99,8 @@ class TwoLayerModel:
 if __name__ == "__main__":
     print("Two Layer Model")
     two_layer_model = TwoLayerModel(1, 4, 0.2)
-    r_coords = np.linspace(-1, 1, 101, dtype=np.float64)
-    z_coords = np.linspace(0, 1, 100, dtype=np.float64)
+    r_coords = np.linspace(-1, 1, 31, dtype=np.float64)
+    z_coords = np.linspace(0, 1, 30, dtype=np.float64)
     I = 1
     r, z = np.meshgrid(r_coords, z_coords)
 
@@ -113,7 +113,6 @@ if __name__ == "__main__":
     for zz in z_coords:
         for rr in r_coords:
             line.append(two_layer_model.field_potential(I, rr, zz))
-            # line.append(rr+zz)
             value = two_layer_model.field_strength(I, rr, zz)
             line_er.append(value[0])
             line_ez.append(value[1])

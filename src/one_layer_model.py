@@ -50,8 +50,8 @@ class OneLayerModel:
 if __name__ == "__main__":
     print("One Layer Model")
     one_layer_model = OneLayerModel(1)
-    r_coords = np.linspace(-1, 1, 101, dtype=np.float64)
-    z_coords = np.linspace(0, 1, 100, dtype=np.float64)
+    r_coords = np.linspace(-1, 1, 301, dtype=np.float64)
+    z_coords = np.linspace(0, 1, 300, dtype=np.float64)
     I = 1
     r, z = np.meshgrid(r_coords, z_coords)
 
