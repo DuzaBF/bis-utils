@@ -1,5 +1,6 @@
 import sympy as sym
 
+
 def matthie_deriv():
     sym.init_printing()
     sigma_lf = sym.Symbol("S_LF", positive=True)
@@ -17,13 +18,15 @@ def matthie_deriv():
     slfhf = sym.Symbol("(S_LF/S_HF)", positive=True)
     shflf = sym.Symbol("(S_HF/S_LF)", positive=True)
 
-    hanai_lf_eq = sym.Eq((sigma_lf / sigma_ecf), (1-phi_lf)**sym.Rational(3,2))
+    hanai_lf_eq = sym.Eq((sigma_lf / sigma_ecf),
+                         (1-phi_lf)**sym.Rational(3, 2))
     print("Hanai equation for low frequencies")
     sym.pprint(hanai_lf_eq)
     hanai_lf_vol = 1 - v_ecf/v_tot
     hanai_lf_vol_eq = hanai_lf_eq.subs(phi_lf, hanai_lf_vol)
 
-    hanai_hf_eq = sym.Eq((sigma_hf / sigma_tbw), (1-phi_hf)**sym.Rational(3,2))
+    hanai_hf_eq = sym.Eq((sigma_hf / sigma_tbw),
+                         (1-phi_hf)**sym.Rational(3, 2))
     print("Hanai equation for high frequencies")
     sym.pprint(hanai_hf_eq)
     hanai_hf_vol = 1 - (v_ecf + v_icf)/v_tot
@@ -36,18 +39,22 @@ def matthie_deriv():
 
     v_tot_expr_2 = sym.solve(hanai_hf_vol_eq, v_tot)[0]
     vol_expr_t = hanai_lf_vol_eq.subs(v_tot, v_tot_expr_2)
-    vol_expr = sym.Eq(1 + v_icf/v_ecf, ((sigma_ecf * sigma_hf)/(sigma_tbw * sigma_lf))**sym.Rational(2,3))
+    vol_expr = sym.Eq(1 + v_icf/v_ecf, ((sigma_ecf * sigma_hf) /
+                      (sigma_tbw * sigma_lf))**sym.Rational(2, 3))
     vol_expr = vol_expr.subs(sigma_lf, slfhf * sigma_hf)
-    vol_expr2 = sym.Eq(1 + v_icf/v_ecf, ((sigma_ecf / sigma_tbw)*(1 / slfhf))**sym.Rational(2,3))
+    vol_expr2 = sym.Eq(
+        1 + v_icf/v_ecf, ((sigma_ecf / sigma_tbw)*(1 / slfhf))**sym.Rational(2, 3))
     print("Volume expression from conductivities")
     sym.pprint(vol_expr_t.simplify())
     sym.pprint(vol_expr.simplify())
     sym.pprint(vol_expr2.simplify())
 
-    matthie_eq = sym.Eq((((sigma_tbw - sigma_icf)/(sigma_ecf - sigma_icf)) * (sigma_ecf/sigma_tbw)**sym.Rational(1, 3))**sym.Rational(-1, 1), (v_ecf/(v_icf+v_ecf))**sym.Rational(-1, 1))
+    matthie_eq = sym.Eq((((sigma_tbw - sigma_icf)/(sigma_ecf - sigma_icf)) * (sigma_ecf/sigma_tbw)
+                        ** sym.Rational(1, 3))**sym.Rational(-1, 1), (v_ecf/(v_icf+v_ecf))**sym.Rational(-1, 1))
     print("Matthie equation for TBW")
     sym.pprint(matthie_eq)
-    matthie_eq_sig = matthie_eq = sym.Eq((((sigma_tbw - sigma_icf)/(sigma_ecf - sigma_icf)) * (sigma_ecf/sigma_tbw)**sym.Rational(1, 3))**sym.Rational(-1, 1), ((sigma_ecf * sigma_hf)/(sigma_tbw * sigma_lf))**sym.Rational(2,3))
+    matthie_eq_sig = matthie_eq = sym.Eq((((sigma_tbw - sigma_icf)/(sigma_ecf - sigma_icf)) * (sigma_ecf/sigma_tbw)**sym.Rational(
+        1, 3))**sym.Rational(-1, 1), ((sigma_ecf * sigma_hf)/(sigma_tbw * sigma_lf))**sym.Rational(2, 3))
     sigma_tbw_sol = sym.simplify(sym.solve(matthie_eq_sig, sigma_tbw)[0])
     sigma_tbw_sol = sigma_tbw_sol.subs(sigma_lf, slfhf * sigma_hf).factor()
     print("Matthie sigma TBW")
@@ -57,9 +64,10 @@ def matthie_deriv():
     matthie_fin = vol_expr.subs(sigma_tbw, sigma_tbw_sol)
     matthie_fin = matthie_fin.subs(slfhf, 1/shflf)
     print("Final Matthie equation")
-    simple_matthie = matthie_fin.rhs**sym.Rational(3,2)
-    simple_matthie = simple_matthie.expand().collect(shflf).subs(shflf, sigma_hf/sigma_lf)
-    matthie_fin2 = sym.Eq(matthie_fin.lhs, simple_matthie**sym.Rational(2,3))
+    simple_matthie = matthie_fin.rhs**sym.Rational(3, 2)
+    simple_matthie = simple_matthie.expand().collect(
+        shflf).subs(shflf, sigma_hf/sigma_lf)
+    matthie_fin2 = sym.Eq(matthie_fin.lhs, simple_matthie**sym.Rational(2, 3))
     sym.pprint(matthie_fin2)
 
 
@@ -70,7 +78,8 @@ def other():
     csigma_p = sym.Symbol('sigma_p')
     csigma_m = sym.Symbol('sigma_m')
     phi = sym.Symbol('Phi', positive=True)
-    hanai_left = ((csigma - csigma_p) / (csigma_m - csigma_p)) * (((csigma_m) / (csigma))**sym.Rational(1,3))
+    hanai_left = ((csigma - csigma_p) / (csigma_m - csigma_p)) * \
+        (((csigma_m) / (csigma))**sym.Rational(1, 3))
     hanai_expr = sym.Eq(hanai_left, 1 - phi)
     sym.pprint(hanai_expr)
 
@@ -89,10 +98,12 @@ def other():
     v_tbw = sym.Symbol('V_tbw', positive=True)
     v_tot = sym.Symbol('V_tot', positive=True)
 
-    hanai_lf = hanai_expr.subs([(csigma, sigma_lf), (csigma_p, 0), (csigma_m, sigma_ecf), (phi, phi_lf)])
+    hanai_lf = hanai_expr.subs(
+        [(csigma, sigma_lf), (csigma_p, 0), (csigma_m, sigma_ecf), (phi, phi_lf)])
     sym.pprint(hanai_lf)
 
-    hanai_hf = hanai_expr.subs([(csigma, sigma_hf), (csigma_p, 0), (csigma_m, sigma_tbw), (phi, phi_hf)])
+    hanai_hf = hanai_expr.subs(
+        [(csigma, sigma_hf), (csigma_p, 0), (csigma_m, sigma_tbw), (phi, phi_hf)])
     sym.pprint(hanai_hf)
 
     phi_lf_expr = 1 - (v_ecf) / (v_tot)
@@ -131,5 +142,96 @@ def other():
     fin_expr = one_vi_ve_ex_2.subs(sigma_tbw, tbw_sol)
     sym.pprint(sym.expand(fin_expr))
 
+
+def frac(r):
+    return 1 / r
+
+
+def sqrt_frac(r, d):
+    return 1 / (sym.sqrt(r**2 + (2*d)**2))
+
+
+def derivatives_least_squares():
+    s_1 = sym.Symbol('sigma_1')
+    s_2 = sym.Symbol('sigma_2')
+    d_1 = sym.Symbol('d_1')
+    x_a = sym.Symbol('x_a')
+    x_b = sym.Symbol('x_b')
+    x_m = sym.Symbol('x_m')
+    x_n = sym.Symbol('x_n')
+    n = sym.Symbol('n')
+    k12 = (s_1 - s_2) / (s_1 + s_2)
+    z = (1 / (2 * sym.pi * s_1)) * (
+        frac(sym.Abs(x_m - x_a)) -
+        frac(sym.Abs(x_m - x_b)) -
+        frac(sym.Abs(x_n - x_a)) +
+        frac(sym.Abs(x_n - x_b)) +
+        2 * sym.Sum((k12 ** n) * (
+            sqrt_frac(x_m - x_a, n*d_1) -
+            sqrt_frac(x_m - x_b, n*d_1) -
+            sqrt_frac(x_n - x_a, n*d_1) +
+            sqrt_frac(x_n - x_b, n*d_1)),
+            (n, 1, sym.oo))
+    )
+    # sym.pprint(z)
+
+    dz_ds1 = sym.diff(z, s_1)
+    # sym.pprint(dz_ds1)
+
+    dz_ds2 = sym.diff(z, s_2)
+    # sym.pprint(dz_ds2)
+
+    dz_dd1 = sym.diff(z, d_1)
+    # sym.pprint(dz_dd1)
+
+    g1 = sym.Symbol("g1")
+    g2 = sym.Function('g2')(n, d_1)
+
+    zgg = 1 / (2 * sym.pi * s_1) * (
+        g1 + 2 * sym.Sum(k12**n * g2, (n, 1, sym.oo))
+    )
+    print("--zgg--")
+    sym.pprint(zgg)
+
+    dzgg_ds1 = sym.diff(zgg, s_1)
+    dzgg_ds2 = sym.diff(zgg, s_2)
+    dzgg_dd1 = sym.diff(zgg, d_1)
+
+    print("--dzgg_ds1--")
+    sym.pprint(dzgg_ds1)
+    sym.pprint(dzgg_ds1.simplify())
+    print("--dzgg_ds2--")
+    sym.pprint(dzgg_ds2)
+    sym.pprint(dzgg_ds2.simplify())
+    print("--dzgg_dd1--")
+    sym.pprint(dzgg_dd1)
+
+    g1_f = frac(sym.Abs(x_m - x_a)) - \
+        frac(sym.Abs(x_m - x_b)) - \
+        frac(sym.Abs(x_n - x_a)) + \
+        frac(sym.Abs(x_n - x_b))
+
+    g2_f = sqrt_frac(x_m - x_a, n*d_1) - \
+        sqrt_frac(x_m - x_b, n*d_1) - \
+        sqrt_frac(x_n - x_a, n*d_1) + \
+        sqrt_frac(x_n - x_b, n*d_1)
+
+    dg2_ds1 = sym.diff(2 * sym.Sum(k12**n * g2_f,
+                       (n, 1, sym.oo)), s_1)
+
+    dg2_ds2 = sym.diff(2 * sym.Sum(k12**n * g2_f,
+                       (n, 1, sym.oo)), s_2)
+
+    dg2_dd1 = sym.diff(2 * sym.Sum(k12**n * g2_f,
+                       (n, 1, sym.oo)), d_1)
+
+    # print("--dg2_ds1--")
+    # sym.pprint(dg2_ds1)
+    # print("--dg2_ds2--")
+    # sym.pprint(dg2_ds2)
+    print("--dg2_dd1--")
+    sym.pprint(dg2_dd1)
+
+
 if __name__ == "__main__":
-    matthie_deriv()
+    derivatives_least_squares()
