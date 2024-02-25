@@ -178,6 +178,15 @@ class ElectrodeFields:
         self.r = -self.r
         self.z = -self.z
 
+    def __neg__(self):
+        return ElectrodeFields(-self.v,
+                               -self.er,
+                               -self.ez,
+                               (self.r - self.r_shift),
+                               self.z,
+                               self.r_shift,
+                               self.name)
+
 
 def read_model_fields(model):
     v = np.genfromtxt(
@@ -255,7 +264,7 @@ def plot_layer_model(el: ElectrodeFields, parameters: dict,  v_min=np.NaN, v_max
     ax.set_title(
         title
     )
-    ax.set_xlabel("r, m")
+    ax.set_xlabel("x, m")
     ax.set_ylabel("z, m")
 
     draw_scalar_field(figure, ax, el.r, el.z, el.v, v_min=v_min, v_max=v_max,
@@ -301,6 +310,123 @@ def plot_sensitivity(
     plot_layer_model(sensitivity, parameters, v_min=-2, v_max=2,
                      title="Sensitivity field")
 
+
+def plot_fields_arrangements(
+    el_1: ElectrodeFields,
+    el_2: ElectrodeFields,
+    el_3: ElectrodeFields,
+    el_4: ElectrodeFields,
+    parameters: dict,
+):
+    sigma = parameters.get("sigma") or 0
+    sigma_1 = parameters.get("sigma_1")
+    sigma_2 = parameters.get("sigma_2")
+    d_1 = parameters.get("d_1") or 0
+    I = parameters.get("I")
+
+    arrangements = [
+        ((1, 4), (2, 3)),
+        ((3, 4), (1, 2)),
+        ((2, 4), (1, 3)),
+    ]
+
+    els = [el_1, el_2, el_3, el_4]
+
+    xi = []
+    for a in arrangements:
+        ind_a = a[0][0]-1
+        ind_m = a[1][0]-1
+        ind_n = a[1][1]-1
+        ind_b = a[0][1]-1
+        xi.append([
+            els[ind_a],
+            els[ind_m],
+            els[ind_n],
+            els[ind_b]
+        ])
+
+    figure = plt.figure()
+    fontprops = {
+        'fontname': 'serif',
+        'size': 12
+    }
+    i = 1
+    for x in xi:
+        j1_injected = x[0] + -x[3]
+
+        ax = figure.add_subplot(2, 2, i)
+        ax.invert_yaxis()
+        ax.set_title(
+            "Arrangement {}".format(j1_injected.name), **fontprops
+        )
+        ax.set_xlabel("x (m)", **fontprops)
+        ax.set_ylabel("z (m)", **fontprops)
+
+        new_v = np.clip(j1_injected.v, -2, 2)
+        cset_v = ax.contourf(
+            j1_injected.r - j1_injected.r_shift, j1_injected.z, new_v)
+
+        n = 8
+        norm = np.sqrt(np.add(np.power(j1_injected.er, 2),
+                       np.power(j1_injected.ez, 2)))
+        er = j1_injected.er / norm
+        ez = j1_injected.ez / norm
+        q_e = ax.quiver(
+            j1_injected.r[1::n, 1::n] - j1_injected.r_shift,
+            j1_injected.z[1::n, 1::n],
+            er[1::n, 1::n],
+            -ez[1::n, 1::n],
+            norm[1::n, 1::n],
+            pivot="mid",
+            cmap="gist_gray",
+            units="xy",
+            width=0.008,
+            headwidth=2,
+            headlength=3,
+            headaxislength=3,
+            scale_units="xy",
+            scale=10,
+        )
+        q_e.set_clim(0, 2)
+
+        draw_horizontal_line(figure, ax, j1_injected.r, d_1)
+        draw_horizontal_line(figure, ax, j1_injected.r, 0)
+        ax.set_xlim(-0.5, 0.7)
+        ax.set_ylim(1, -0.2)
+
+        xticks = ax.get_xticks()
+        yticks = ax.get_yticks()
+        ax.set_xticks(xticks)
+        ax.set_yticks(yticks)
+        ax.set_xticklabels(["{:0.1f}".format(t) for t in xticks], **fontprops)
+        ax.set_yticklabels(["{:0.1f}".format(t) for t in yticks], **fontprops)
+
+        ax.set_aspect('equal', adjustable='box')
+
+        for j in range(4):
+            ax.arrow(x[j].r_shift, -0.15, 0, 0.15)
+            ax.text(x[j].r_shift - 0.05, -0.1,
+                    "{}".format(x[j].name), **fontprops)
+
+        i = i + 1
+
+    cbar_v = figure.add_axes([0.54, 0.35, 0.2, 0.03])
+    cbv = figure.colorbar(cset_v, cax=cbar_v, orientation='horizontal')
+    cbv.set_label("Potential (V)", **fontprops)
+    vticks = cbv.get_ticks()
+    cbv.set_ticks(vticks)
+    cbv.set_ticklabels(vticks, **fontprops)
+
+    cbar_e = figure.add_axes([0.54, 0.15, 0.2, 0.03])
+    cbe = figure.colorbar(q_e, cax=cbar_e, orientation='horizontal')
+    cbe.set_label("Field strength (V/m)", **fontprops)
+    eticks = cbe.get_ticks()
+    cbe.set_ticks(eticks)
+    cbe.set_ticklabels(eticks, **fontprops)
+
+    figure.subplots_adjust(hspace=0.3, wspace=-0.5)
+
+
 if __name__ == "__main__":
     model = "two-layer-model"
     v, er, ez, r, z, parameters = read_model_fields(model)
@@ -310,9 +436,22 @@ if __name__ == "__main__":
     el_M = ElectrodeFields(v, er, ez, r, z, -0.1, "el_M")
     el_N = ElectrodeFields(-v, -er, -ez, r, z, 0.1, "el_N")
 
-    plot_sensitivity(el_A,
-                     el_B,
-                     el_M,
-                     el_N, parameters)
+    # plot_sensitivity(el_A,
+    #                  el_B,
+    #                  el_M,
+    #                  el_N, parameters)
+
+    el_1 = ElectrodeFields(v, er, ez, r, z, 0, "1")
+    el_2 = ElectrodeFields(v, er, ez, r, z, 0.1, "2")
+    el_3 = ElectrodeFields(v, er, ez, r, z, 0.2, "3")
+    el_4 = ElectrodeFields(v, er, ez, r, z, 0.3, "4")
+
+    plot_fields_arrangements(
+        el_1,
+        el_2,
+        el_3,
+        el_4,
+        parameters
+    )
 
     plt.show()
