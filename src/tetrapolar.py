@@ -217,6 +217,7 @@ if __name__ == "__main__":
     expected = [s_1, s_2, d_1]
     for i in range(len(result)):
         print("Expected: {} Found: {}".format(expected[i], result[i]))
+        print("Error: {}%".format(abs(100*(expected[i] - result[i])/expected[i])))
 
     t2 = Tetrapolar(two_layer_model.TwoLayerModel(
         result[0], result[1], result[2]), x_geom)
