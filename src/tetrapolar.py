@@ -149,11 +149,59 @@ def lsm_scipy(xi: list[list], zi: list):
     def residual(s: list):
         return np.array([r_i(z[i], xi[i], s) for i in range(cnt)], dtype=np.float64)
 
+    def dz_ds1(x: list, s: list) -> np.float64:
+        s_1 = s[0]
+        s_2 = s[1]
+        d_1 = s[2]
+        if s_1 == s_2:
+            return 0
+        return - (q(s) / s_1) * (g1(x) +
+                                 2 * sum_1_n(x, s, 0) -
+                                 (2 * s_1 * s_2) / (s_1 ** 2 - s_2 ** 2) *
+                                 2 * sum_1_n(x, s, 1))
+
+    def dz_ds2(x: list, s: list) -> np.float64:
+        s_1 = s[0]
+        s_2 = s[1]
+        d_1 = s[2]
+        if s_1 == s_2:
+            return 0
+        return - q(s) * ((2 * s_1) / (s_1 ** 2 - s_2 ** 2) *
+                         2 * sum_1_n(x, s, 1))
+
+    def dg2_dd1(x: list, s: list, n) -> np.float64:
+        x_a = x[0]
+        x_m = x[1]
+        x_n = x[2]
+        x_b = x[3]
+        d_1 = s[2]
+        tmp = (
+            d_sqrt_frac(x_m - x_a, d_1, n) -
+            d_sqrt_frac(x_m - x_b, d_1, n) -
+            d_sqrt_frac(x_n - x_a, d_1, n) +
+            d_sqrt_frac(x_n - x_b, d_1, n)
+        )
+        return abs(tmp)
+
+    def dz_dd1(x: list, s: list) -> np.float64:
+        s_1 = s[0]
+        s_2 = s[1]
+        d_1 = s[2]
+        return q(s) * 2 * mpmath.nsum(lambda n: k12(s) ** n * dg2_dd1(x, s, n), [1, mpmath.inf])
+
+    def jac(s: list):
+        return np.array([[
+            dz_ds1(xi[i], s),
+            dz_ds2(xi[i], s),
+            dz_dd1(xi[i], s)
+        ]
+            for i in range(cnt)], dtype=np.float64)
+
     bounds = ([0, 0, 0], [10, 10, 10])
 
-    initial_guesses = [0.1, 0.1, 0.1]
+    initial_guesses = [0.1, 0.15, 0.01]
     result = scipy.optimize.least_squares(
-        residual, initial_guesses, method='trf', bounds=bounds)
+        residual, initial_guesses, jac=jac method='dogbox', bounds=bounds)
     print(result)
 
     for i in range(cnt):
