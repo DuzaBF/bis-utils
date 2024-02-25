@@ -44,6 +44,8 @@ class TwoLayerModel:
         self._d_1 = d
 
     def one_over_root(self, r, z, n):
+        if r == 0:
+            return 0
         a = np.power(r, 2)
         sz = np.add(z, 2 * n * self.d_1)
         b = np.power(sz, 2)
@@ -64,6 +66,8 @@ class TwoLayerModel:
         return self.field_potential(I, r, 0)
 
     def over_root_dr(self, r, z, n):
+        if r == 0:
+            return 0
         a = np.power(r, 2)
         sz = np.add(z, 2 * n * self.d_1)
         b = np.power(sz, 2)
@@ -77,6 +81,8 @@ class TwoLayerModel:
         )
 
     def over_root_dz(self, r, z, n):
+        if r == 0:
+            return 0
         sz = np.add(z, 2 * n * self.d_1)
         return sz / (np.power(np.power(r, 2) + np.power(sz, 2), 3 / 2))
 

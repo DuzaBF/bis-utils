@@ -36,11 +36,21 @@ class Tetrapolar:
 
 
 def frac(r):
+    if r == 0:
+        return 0
     return 1 / r
 
 
-def sqrt_frac(r, d):
-    return 1 / (sym.sqrt(r**2 + (2*d)**2))
+def sqrt_frac(r, d, n):
+    if r == 0:
+        return 0
+    return 1 / (sym.sqrt(r**2 + (2*n*d)**2))
+
+
+def d_sqrt_frac(r, d, n):
+    if r == 0:
+        return 0
+    return (4 * d * n**2) / ((r**2 + (2*n*d)**2)**(3/2))
 
 
 def lsm(xi: list[list], zi: list):
@@ -59,10 +69,10 @@ def lsm(xi: list[list], zi: list):
         frac(sym.Abs(x_n - x_a)) +
         frac(sym.Abs(x_n - x_b)) +
         2 * sym.Sum((k12 ** n) * (
-            sqrt_frac(x_m - x_a, n*d_1) -
-            sqrt_frac(x_m - x_b, n*d_1) -
-            sqrt_frac(x_n - x_a, n*d_1) +
-            sqrt_frac(x_n - x_b, n*d_1)),
+            sqrt_frac(x_m - x_a, d_1, n) -
+            sqrt_frac(x_m - x_b, d_1, n) -
+            sqrt_frac(x_n - x_a, d_1, n) +
+            sqrt_frac(x_n - x_b, d_1, n)),
             (n, 1, sym.oo))
     )
 
@@ -115,10 +125,10 @@ def lsm_scipy(xi: list[list], zi: list):
         x_b = x[3]
         d_1 = s[2]
         tmp = (
-            sqrt_frac(x_m - x_a, d_1 * n) -
-            sqrt_frac(x_m - x_b, d_1 * n) -
-            sqrt_frac(x_n - x_a, d_1 * n) +
-            sqrt_frac(x_n - x_b, d_1 * n)
+            sqrt_frac(x_m - x_a, d_1, n) -
+            sqrt_frac(x_m - x_b, d_1, n) -
+            sqrt_frac(x_n - x_a, d_1, n) +
+            sqrt_frac(x_n - x_b, d_1, n)
         )
         return abs(tmp)
 
@@ -127,8 +137,11 @@ def lsm_scipy(xi: list[list], zi: list):
         s_2 = s[1]
         return (s_1 - s_2) / (s_1 + s_2)
 
+    def sum_1_n(x: list, s: list, extra_n):
+        return mpmath.nsum(lambda n: k12(s) ** n * g2(x, s, n) * n**extra_n, [1, mpmath.inf])
+
     def f(x: list, s: list) -> np.float64:
-        return q(s) * (g1(x) + 2 * mpmath.nsum(lambda n: k12(s) ** n * g2(x, s, n), [1, mpmath.inf]))
+        return q(s) * (g1(x) + 2 * sum_1_n(x, s, 0))
 
     def r_i(z, x: list, s: list):
         return z - f(x, s)
@@ -165,7 +178,11 @@ if __name__ == "__main__":
     arrangements = [
         ((1, 4), (2, 3)),
         ((3, 4), (1, 2)),
-        ((2, 4), (1, 3))
+        ((2, 4), (1, 3)),
+        ((1, 4), (1, 4)),
+        ((2, 3), (2, 3)),
+        ((1, 2), (1, 2)),
+        ((1, 3), (1, 3))
     ]
 
     xi = []
@@ -188,7 +205,8 @@ if __name__ == "__main__":
         s_1, s_2, d_1), x_geom)
 
     for a in arrangements:
-        print("Z_{}{} ".format(a[1][0], a[1][1]), t.impedance(a[0], a[1]))
+        print("current: {}{} Z_{}{} ".format(
+            a[0][0], a[0][1], a[1][0], a[1][1]), t.impedance(a[0], a[1]))
 
     z = []
     for a in arrangements:
@@ -203,5 +221,5 @@ if __name__ == "__main__":
     t2 = Tetrapolar(two_layer_model.TwoLayerModel(
         result[0], result[1], result[2]), x_geom)
     for a in arrangements:
-        print("From estimated Z_{}{} ".format(
-            a[1][0], a[1][1]), t2.impedance(a[0], a[1]))
+        print("From estimated current: {}{} Z_{}{} ".format(a[0][0], a[0][1],
+                                                            a[1][0], a[1][1]), t2.impedance(a[0], a[1]))
