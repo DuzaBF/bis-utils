@@ -7,7 +7,7 @@ L. D. Landau, E. M. Lifšic, L. P. Pitaevskij, and L. D. Landau, “The field eq
 """
 
 def calc_ratio(eps, sigma, omega):
-    return (eps * scipy.constants.epsilon_0 * omega) / (4 * scipy.constants.pi * sigma)
+    return (eps * scipy.constants.epsilon_0 * omega) / (sigma)
 
 
 if __name__ == "__main__":
