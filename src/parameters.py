@@ -14,13 +14,17 @@ sigma_ecf - conductivity of the extracellular fluid
 C_m - cell membrane capacitance per unit area
 t - size of the cell
 '''
-L = 30 * 10**(-3) # [m]
+L = 25 * 10**(-3) # [m]
 s = 10 * 10**(-3) # [m]
-d_1 = 5 * 10**(-3) # [m]
+d_1 = 10 * 10**(-3) # [m]
 sigma_fat = 0.02 # [S/m]
 eps_fat = 92.885
 sigma_muscle = 0.34 # [S/m]
 eps_muscle = 8089.2
+sigma_muscle_along = 0.44 # [S/m]
+eps_muscle_along = 10000
+sigma_muscle_across = 0.12 # [S/m]
+eps_muscle_across = 3000
 eps_icf = 80
 sigma_icf = 0.3 # [S/m]
 eps_ecf = 80

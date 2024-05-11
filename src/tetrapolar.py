@@ -164,11 +164,13 @@ def lsm_scipy(xi: list[list], zi: list):
 
 
 if __name__ == "__main__":
+    import parameters
     x1 = 0
-    x2 = 0.1
-    x3 = 0.2
-    x4 = 0.3
+    x2 = (parameters.L - parameters.s) / 2
+    x3 = (parameters.L + parameters.s) / 2
+    x4 = parameters.L
     x_geom = [x1, x2, x3, x4]
+    print(["{:.1f} mm".format(1000 * x) for x in x_geom])
     """
     A M N B
     1 2 3 4
@@ -198,9 +200,9 @@ if __name__ == "__main__":
             x_geom[ind_b]
         ])
 
-    s_1 = 1
-    s_2 = 2
-    d_1 = 0.1
+    s_1 = parameters.sigma_fat
+    s_2 = parameters.sigma_muscle
+    d_1 = parameters.d_1
     t = Tetrapolar(two_layer_model.TwoLayerModel(
         s_1, s_2, d_1), x_geom)
 

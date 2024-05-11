@@ -51,10 +51,15 @@ class OneLayerModel:
 
 if __name__ == "__main__":
     print("One Layer Model")
-    one_layer_model = OneLayerModel(1)
-    r_coords = np.linspace(-1, 1, 301, dtype=np.float64)
-    z_coords = np.linspace(0, 1, 300, dtype=np.float64)
-    I = 1
+    import parameters
+    sigma = parameters.sigma_fat
+    d_1 = parameters.d_1
+    r_size = 10*d_1
+    z_size = 10*d_1
+    one_layer_model = OneLayerModel(sigma)
+    r_coords = np.linspace(-r_size, r_size, 301, dtype=np.float64)
+    z_coords = np.linspace(0, z_size, 300, dtype=np.float64)
+    I = 1 * 10**(-3)
     r, z = np.meshgrid(r_coords, z_coords)
 
     v = one_layer_model.field_potential(I, r, z)
