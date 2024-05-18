@@ -179,8 +179,8 @@ if __name__ == "__main__":
     r_size = 10 * d_1
     z_size = 10 * d_1
     two_layer_model = TwoLayerModel(sigma_1, sigma_2, d_1)
-    r_coords = np.linspace(-r_size, r_size, 41, dtype=np.float64)
-    z_coords = np.linspace(0, z_size, 40, dtype=np.float64)
+    r_coords = np.linspace(-r_size, r_size, 201, dtype=np.float64)
+    z_coords = np.linspace(0, z_size, 200, dtype=np.float64)
     I = 1 * 10 ** (-3)
     r, z = np.meshgrid(r_coords, z_coords)
 

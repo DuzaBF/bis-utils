@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy
+import scipy.ndimage
 
 EPS = 0.0001
 
@@ -387,6 +388,8 @@ def plot_fields_arrangements(
         ax.set_ylabel("z (mm)", **fontprops)
 
         new_v = np.clip(j1_injected.v, -v_lim, v_lim)
+        new_v = np.nan_to_num(new_v)
+        new_v = scipy.ndimage.uniform_filter(new_v, size=20)
         cset_v = ax.contourf(j1_injected.r - j1_injected.r_shift, j1_injected.z, new_v)
 
         # n = 4
