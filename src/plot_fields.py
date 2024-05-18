@@ -273,7 +273,7 @@ def plot_layer_model(
     draw_scalar_field(
         figure, ax, el.r, el.z, el.v, v_min=v_min, v_max=v_max, label=el.v_name
     )
-    draw_vector_field(figure, ax, el.r, el.z, el.er, el.ez, label=el.e_name)
+    # draw_vector_field(figure, ax, el.r, el.z, el.er, el.ez, label=el.e_name)
     draw_horizontal_line(figure, ax, el.r, d_1)
     draw_horizontal_line(figure, ax, el.r, 0)
     ax.set_xlim(el.r[0][0], el.r[0][-1])
@@ -354,8 +354,8 @@ def plot_fields_arrangements(
     my_x_lim = (-0.04, 0.08)
     my_y_lim = (0.08, -0.02)
 
-    v_lim = 1
-    e_lim = 10
+    v_lim = 0.5
+    e_lim = 100
     my_c_lim = (0, e_lim)
 
     arrangements = [
@@ -389,28 +389,28 @@ def plot_fields_arrangements(
         new_v = np.clip(j1_injected.v, -v_lim, v_lim)
         cset_v = ax.contourf(j1_injected.r - j1_injected.r_shift, j1_injected.z, new_v)
 
-        n = 12
-        norm = np.sqrt(np.add(np.power(j1_injected.er, 2), np.power(j1_injected.ez, 2)))
-        new_v = np.clip(norm, -e_lim, e_lim)
-        er = j1_injected.er / norm
-        ez = j1_injected.ez / norm
-        q_e = ax.quiver(
-            j1_injected.r[1::n, 1::n] - j1_injected.r_shift,
-            j1_injected.z[1::n, 1::n],
-            er[1::n, 1::n],
-            -ez[1::n, 1::n],
-            norm[1::n, 1::n],
-            pivot="tail",
-            cmap="gist_gray",
-            units="width",
-            width=0.005,
-            headwidth=1,
-            headlength=2,
-            headaxislength=2,
-            scale_units="width",
-            scale=40,
-        )
-        q_e.set_clim(my_c_lim)
+        # n = 4
+        # norm = np.sqrt(np.add(np.power(j1_injected.er, 2), np.power(j1_injected.ez, 2)))
+        # new_v = np.clip(norm, -e_lim, e_lim)
+        # er = j1_injected.er / norm
+        # ez = j1_injected.ez / norm
+        # q_e = ax.quiver(
+        #     j1_injected.r[1::n, 1::n] - j1_injected.r_shift,
+        #     j1_injected.z[1::n, 1::n],
+        #     er[1::n, 1::n],
+        #     -ez[1::n, 1::n],
+        #     norm[1::n, 1::n],
+        #     pivot="tail",
+        #     cmap="gist_gray",
+        #     units="width",
+        #     width=0.005,
+        #     headwidth=1,
+        #     headlength=2,
+        #     headaxislength=2,
+        #     scale_units="width",
+        #     scale=40,
+        # )
+        # q_e.set_clim(my_c_lim)
 
         ax.plot(my_x_lim, (d_1, d_1), color="black")
         ax.plot(my_x_lim, (0, 0), color="black")
@@ -442,12 +442,12 @@ def plot_fields_arrangements(
     cbv.set_ticks(vticks)
     cbv.set_ticklabels(["{:.2f}".format(x) for x in vticks], **fontprops)
 
-    cbar_e = figure.add_axes([0.54, 0.15, 0.2, 0.03])
-    cbe = figure.colorbar(q_e, cax=cbar_e, orientation="horizontal")
-    cbe.set_label("Field strength (V/m)", **fontprops)
-    eticks = cbe.get_ticks()
-    cbe.set_ticks(eticks)
-    cbe.set_ticklabels(eticks, **fontprops)
+    # cbar_e = figure.add_axes([0.54, 0.15, 0.2, 0.03])
+    # cbe = figure.colorbar(q_e, cax=cbar_e, orientation="horizontal")
+    # cbe.set_label("Field strength (V/m)", **fontprops)
+    # eticks = cbe.get_ticks()
+    # cbe.set_ticks(eticks)
+    # cbe.set_ticklabels(eticks, **fontprops)
 
     figure.subplots_adjust(hspace=0.3, wspace=-0.5)
 
@@ -483,5 +483,7 @@ if __name__ == "__main__":
     el_4 = ElectrodeFields(v, er, ez, r, z, x_4, "4")
 
     plot_fields_arrangements(el_1, el_2, el_3, el_4, prms)
+
+    # plot_layer_model(el_1, prms, -1, 1)
 
     plt.show()
