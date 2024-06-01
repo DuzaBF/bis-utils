@@ -9,24 +9,27 @@ import mpmath
 
 
 class Tetrapolar:
-    def __init__(self,
-                 model: Union[one_layer_model.OneLayerModel, two_layer_model.TwoLayerModel],
-                 el_coords: list,
-                 ) -> None:
+    def __init__(
+        self,
+        model: Union[one_layer_model.OneLayerModel, two_layer_model.TwoLayerModel],
+        el_coords: list,
+    ) -> None:
         self.model = model
         self.el_coords = el_coords
         pass
 
     def impedance(self, current_pair: tuple, measure_pair: tuple) -> np.float64:
-        el_A = self.el_coords[current_pair[0]-1]
-        el_B = self.el_coords[current_pair[1]-1]
-        el_M = self.el_coords[measure_pair[0]-1]
-        el_N = self.el_coords[measure_pair[1]-1]
+        el_A = self.el_coords[current_pair[0] - 1]
+        el_B = self.el_coords[current_pair[1] - 1]
+        el_M = self.el_coords[measure_pair[0] - 1]
+        el_N = self.el_coords[measure_pair[1] - 1]
 
         v_M = self.model.field_potential_surface(
-            1, el_M - el_A) + self.model.field_potential_surface(-1, el_M - el_B)
+            1, el_M - el_A
+        ) + self.model.field_potential_surface(-1, el_M - el_B)
         v_N = self.model.field_potential_surface(
-            1, el_N - el_A) + self.model.field_potential_surface(-1, el_N - el_B)
+            1, el_N - el_A
+        ) + self.model.field_potential_surface(-1, el_N - el_B)
 
         u_MN = v_N - v_M
 
@@ -44,36 +47,41 @@ def frac(r):
 def sqrt_frac(r, d, n):
     if r == 0:
         return 0
-    return 1 / (sym.sqrt(r**2 + (2*n*d)**2))
+    return 1 / (sym.sqrt(r**2 + (2 * n * d) ** 2))
 
 
 def d_sqrt_frac(r, d, n):
     if r == 0:
         return 0
-    return (4 * d * n**2) / ((r**2 + (2*n*d)**2)**(3/2))
+    return (4 * d * n**2) / ((r**2 + (2 * n * d) ** 2) ** (3 / 2))
 
 
 def lsm(xi: list[list], zi: list):
-    s_1 = sym.Symbol('sigma_1')
-    s_2 = sym.Symbol('sigma_2')
-    d_1 = sym.Symbol('d_1')
-    x_a = sym.Symbol('x_a')
-    x_m = sym.Symbol('x_m')
-    x_n = sym.Symbol('x_n')
-    x_b = sym.Symbol('x_b')
-    n = sym.Symbol('n')
+    s_1 = sym.Symbol("sigma_1")
+    s_2 = sym.Symbol("sigma_2")
+    d_1 = sym.Symbol("d_1")
+    x_a = sym.Symbol("x_a")
+    x_m = sym.Symbol("x_m")
+    x_n = sym.Symbol("x_n")
+    x_b = sym.Symbol("x_b")
+    n = sym.Symbol("n")
     k12 = (s_1 - s_2) / (s_1 + s_2)
     z = (1 / (2 * sym.pi * s_1)) * (
-        frac(sym.Abs(x_m - x_a)) -
-        frac(sym.Abs(x_m - x_b)) -
-        frac(sym.Abs(x_n - x_a)) +
-        frac(sym.Abs(x_n - x_b)) +
-        2 * sym.Sum((k12 ** n) * (
-            sqrt_frac(x_m - x_a, d_1, n) -
-            sqrt_frac(x_m - x_b, d_1, n) -
-            sqrt_frac(x_n - x_a, d_1, n) +
-            sqrt_frac(x_n - x_b, d_1, n)),
-            (n, 1, sym.oo))
+        frac(sym.Abs(x_m - x_a))
+        - frac(sym.Abs(x_m - x_b))
+        - frac(sym.Abs(x_n - x_a))
+        + frac(sym.Abs(x_n - x_b))
+        + 2
+        * sym.Sum(
+            (k12**n)
+            * (
+                sqrt_frac(x_m - x_a, d_1, n)
+                - sqrt_frac(x_m - x_b, d_1, n)
+                - sqrt_frac(x_n - x_a, d_1, n)
+                + sqrt_frac(x_n - x_b, d_1, n)
+            ),
+            (n, 1, sym.oo),
+        )
     )
 
     dz_ds1 = sym.diff(z, s_1)
@@ -84,18 +92,21 @@ def lsm(xi: list[list], zi: list):
 
     dd_ds1 = 0
     for i in range(3):
-        dd_ds1 = dd_ds1 + 2 * (zi[i]-sym.Subs(z, (x_a, x_m, x_n, x_b), xi[i])
-                               ) * sym.Subs(dz_ds1, (x_a, x_m, x_n, x_b), xi[i])
+        dd_ds1 = dd_ds1 + 2 * (
+            zi[i] - sym.Subs(z, (x_a, x_m, x_n, x_b), xi[i])
+        ) * sym.Subs(dz_ds1, (x_a, x_m, x_n, x_b), xi[i])
 
     dd_ds2 = 0
     for i in range(3):
-        dd_ds2 = dd_ds2 + 2 * (zi[i]-sym.Subs(z, (x_a, x_m, x_n, x_b), xi[i])
-                               ) * sym.Subs(dz_ds2, (x_a, x_m, x_n, x_b), xi[i])
+        dd_ds2 = dd_ds2 + 2 * (
+            zi[i] - sym.Subs(z, (x_a, x_m, x_n, x_b), xi[i])
+        ) * sym.Subs(dz_ds2, (x_a, x_m, x_n, x_b), xi[i])
 
     dd_dd1 = 0
     for i in range(3):
-        dd_dd1 = dd_dd1 + 2 * (zi[i]-sym.Subs(z, (x_a, x_m, x_n, x_b), xi[i])
-                               ) * sym.Subs(dz_dd1, (x_a, x_m, x_n, x_b), xi[i])
+        dd_dd1 = dd_dd1 + 2 * (
+            zi[i] - sym.Subs(z, (x_a, x_m, x_n, x_b), xi[i])
+        ) * sym.Subs(dz_dd1, (x_a, x_m, x_n, x_b), xi[i])
 
 
 def lsm_scipy(xi: list[list], zi: list):
@@ -111,10 +122,10 @@ def lsm_scipy(xi: list[list], zi: list):
         x_n = x[2]
         x_b = x[3]
         tmp = (
-            frac(abs(x_m - x_a)) -
-            frac(abs(x_m - x_b)) -
-            frac(abs(x_n - x_a)) +
-            frac(abs(x_n - x_b))
+            frac(abs(x_m - x_a))
+            - frac(abs(x_m - x_b))
+            - frac(abs(x_n - x_a))
+            + frac(abs(x_n - x_b))
         )
         return abs(tmp)
 
@@ -125,10 +136,10 @@ def lsm_scipy(xi: list[list], zi: list):
         x_b = x[3]
         d_1 = s[2]
         tmp = (
-            sqrt_frac(x_m - x_a, d_1, n) -
-            sqrt_frac(x_m - x_b, d_1, n) -
-            sqrt_frac(x_n - x_a, d_1, n) +
-            sqrt_frac(x_n - x_b, d_1, n)
+            sqrt_frac(x_m - x_a, d_1, n)
+            - sqrt_frac(x_m - x_b, d_1, n)
+            - sqrt_frac(x_n - x_a, d_1, n)
+            + sqrt_frac(x_n - x_b, d_1, n)
         )
         return abs(tmp)
 
@@ -138,7 +149,9 @@ def lsm_scipy(xi: list[list], zi: list):
         return (s_1 - s_2) / (s_1 + s_2)
 
     def sum_1_n(x: list, s: list, extra_n):
-        return mpmath.nsum(lambda n: k12(s) ** n * g2(x, s, n) * n**extra_n, [1, mpmath.inf])
+        return mpmath.nsum(
+            lambda n: k12(s) ** n * g2(x, s, n) * n**extra_n, [1, mpmath.inf]
+        )
 
     def f(x: list, s: list) -> np.float64:
         return q(s) * (g1(x) + 2 * sum_1_n(x, s, 0))
@@ -153,24 +166,33 @@ def lsm_scipy(xi: list[list], zi: list):
 
     initial_guesses = [0.1, 0.1, 0.1]
     result = scipy.optimize.least_squares(
-        residual, initial_guesses, method='trf', bounds=bounds)
+        residual, initial_guesses, method="trf", bounds=bounds
+    )
     print(result)
 
     for i in range(cnt):
-        print("z[{}] = {}  f({}, {}) = {}".format(
-            i, zi[i], xi[i], result.x, f(xi[i], result.x)))
+        print(
+            "z[{}] = {:.4f}  f({}, {}) = {}".format(
+                i,
+                float(zi[i]),
+                ["{:.2f}".format(1000 * x) for x in xi[i]],
+                result.x,
+                f(xi[i], result.x),
+            )
+        )
 
     return result.x
 
 
 if __name__ == "__main__":
     import parameters
+
     x1 = 0
     x2 = (parameters.L - parameters.s) / 2
     x3 = (parameters.L + parameters.s) / 2
     x4 = parameters.L
     x_geom = [x1, x2, x3, x4]
-    print(["{:.1f} mm".format(1000 * x) for x in x_geom])
+    print("Electrodes coordinates: ", ["{:>.2f} mm".format(1000 * x) for x in x_geom])
     """
     A M N B
     1 2 3 4
@@ -184,31 +206,32 @@ if __name__ == "__main__":
         ((1, 4), (1, 4)),
         ((2, 3), (2, 3)),
         ((1, 2), (1, 2)),
-        ((1, 3), (1, 3))
+        ((1, 3), (1, 3)),
     ]
 
     xi = []
     for a in arrangements:
-        ind_a = a[0][0]-1
-        ind_m = a[1][0]-1
-        ind_n = a[1][1]-1
-        ind_b = a[0][1]-1
-        xi.append([
-            x_geom[ind_a],
-            x_geom[ind_m],
-            x_geom[ind_n],
-            x_geom[ind_b]
-        ])
+        ind_a = a[0][0] - 1
+        ind_m = a[1][0] - 1
+        ind_n = a[1][1] - 1
+        ind_b = a[0][1] - 1
+        xi.append([x_geom[ind_a], x_geom[ind_m], x_geom[ind_n], x_geom[ind_b]])
 
     s_1 = parameters.sigma_fat
     s_2 = parameters.sigma_muscle
     d_1 = parameters.d_1
-    t = Tetrapolar(two_layer_model.TwoLayerModel(
-        s_1, s_2, d_1), x_geom)
+    t = Tetrapolar(two_layer_model.TwoLayerModel(s_1, s_2, d_1), x_geom)
+
+    print("Fat thickness {:4.2f} mm".format(d_1))
+    print("Fat conductivity {:4.2f} S/m".format(s_1))
+    print("Muscle conductivity {:4.2f} S/m".format(s_2))
 
     for a in arrangements:
-        print("current: {}{} Z_{}{} ".format(
-            a[0][0], a[0][1], a[1][0], a[1][1]), t.impedance(a[0], a[1]))
+        print(
+            "Current pair: {}{} Impedance Z_{}{} {:>6.2f} Ohm".format(
+                a[0][0], a[0][1], a[1][0], a[1][1], float(t.impedance(a[0], a[1]))
+            )
+        )
 
     z = []
     for a in arrangements:
@@ -219,10 +242,14 @@ if __name__ == "__main__":
     expected = [s_1, s_2, d_1]
     for i in range(len(result)):
         print("Expected: {} Found: {}".format(expected[i], result[i]))
-        print("Error: {}%".format(abs(100*(expected[i] - result[i])/expected[i])))
+        print("Error: {}%".format(abs(100 * (expected[i] - result[i]) / expected[i])))
 
-    t2 = Tetrapolar(two_layer_model.TwoLayerModel(
-        result[0], result[1], result[2]), x_geom)
+    t2 = Tetrapolar(
+        two_layer_model.TwoLayerModel(result[0], result[1], result[2]), x_geom
+    )
     for a in arrangements:
-        print("From estimated current: {}{} Z_{}{} ".format(a[0][0], a[0][1],
-                                                            a[1][0], a[1][1]), t2.impedance(a[0], a[1]))
+        print(
+            "From estimated current pair: {}{} Z_{}{} {:>6.2f} Ohm".format(
+                a[0][0], a[0][1], a[1][0], a[1][1], float(t2.impedance(a[0], a[1]))
+            )
+        )
